@@ -1,0 +1,937 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trage pc-dokter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: werkbank — vaste kopbalk met tabbladen, daaronder een lijst links en een werkvlak rechts (stapelt op gsm) */
+:root{
+  --bg:#F4F1EA; --surface:#FFFDF8; --sunk:#ECE7DC; --line:#DDD5C6;
+  --ink:#16233B; --ink-2:#44506A; --muted:#6A7285;
+  --accent:#B34B12; --accent-soft:#FBE3D0; --accent-ink:#7A300A;
+  --blue:#1F5F8B; --blue-soft:#DDEAF4;
+  --good:#1E7A45; --good-soft:#DDF1E4; --bad:#B42318; --bad-soft:#FBE1DE; --warn:#8A5A00; --warn-soft:#FBEFD3;
+  --img-bg:#FFFFFF; --head:#16233B; --head-ink:#F4F1EA; --head-muted:#AFC0D6;
+  --display:'Rubik', 'Trebuchet MS', Arial, sans-serif;
+  --body:'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1726; --surface:#172238; --sunk:#111B2D; --line:#2A3A57;
+  --ink:#EEF1F6; --ink-2:#C3CBDA; --muted:#94A0B6;
+  --accent:#F29A5E; --accent-soft:#3A2618; --accent-ink:#FFC9A3;
+  --blue:#7FB6E0; --blue-soft:#18304A;
+  --good:#6FD39A; --good-soft:#133524; --bad:#FF8A7E; --bad-soft:#3D1B19; --warn:#F2C46B; --warn-soft:#3A2E12;
+  --img-bg:#F6F4EF; --head:#0A111E; --head-ink:#EEF1F6; --head-muted:#94A0B6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1726; --surface:#172238; --sunk:#111B2D; --line:#2A3A57;
+  --ink:#EEF1F6; --ink-2:#C3CBDA; --muted:#94A0B6;
+  --accent:#F29A5E; --accent-soft:#3A2618; --accent-ink:#FFC9A3;
+  --blue:#7FB6E0; --blue-soft:#18304A;
+  --good:#6FD39A; --good-soft:#133524; --bad:#FF8A7E; --bad-soft:#3D1B19; --warn:#F2C46B; --warn-soft:#3A2E12;
+  --img-bg:#F6F4EF; --head:#0A111E; --head-ink:#EEF1F6; --head-muted:#94A0B6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.2;text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--head);color:var(--head-ink)}
+.top-in{max-width:1200px;margin:0 auto;padding:12px 16px 0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.brand{display:flex;align-items:baseline;gap:10px;flex:1;min-width:0}
+.brand h1{font-size:20px;font-weight:600}
+.brand span{color:var(--head-muted);font-size:13px}
+@media (max-width:520px){.brand span{display:none}.brand h1{font-size:18px}}
+.teach{background:transparent;border:1px solid var(--head-muted);color:var(--head-ink);border-radius:999px;padding:4px 14px;font-size:14px;cursor:pointer}
+.tabs{width:100%;display:flex;gap:4px;overflow-x:auto}
+.tab{background:transparent;border:0;border-bottom:3px solid transparent;color:var(--head-muted);padding:10px 14px 9px;font-weight:700;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--head-ink);border-bottom-color:var(--accent)}
+.tab .lock{font-size:12px;margin-left:6px;padding:1px 7px;border-radius:999px;background:#ffffff22}
+main{max-width:1200px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+.lead{max-width:68ch;color:var(--ink-2)}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.split{display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.split{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:6px;position:sticky;top:120px}
+@media (max-width:820px){.side{position:static;flex-direction:row;overflow-x:auto;padding-bottom:4px}}
+.navbtn{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;min-width:0}
+@media (max-width:820px){.navbtn{min-width:200px}}
+.navbtn[aria-current="true"]{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+.navbtn small{display:block;color:var(--muted);font-size:12px}
+.pill{font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.todo{background:var(--sunk);color:var(--muted)}
+.pill.opt{background:var(--blue-soft);color:var(--blue)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:18px;min-width:0}
+@media (max-width:520px){.panel{padding:16px}}
+.panel h2{font-size:26px;font-weight:600}
+.panel h3{font-size:19px;font-weight:600}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:72ch}
+.prose ul,.prose ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.box{border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.box h4{font-size:15px;font-weight:700;letter-spacing:.02em}
+.box.onthoud{background:var(--accent-soft);border-left:5px solid var(--accent)}
+.box.onthoud h4{color:var(--accent-ink)}
+.box.vgl{background:var(--blue-soft)}
+.box.vgl h4{color:var(--blue)}
+.box.vb{background:var(--sunk)}
+.fig{display:flex;flex-wrap:wrap;gap:12px}
+.fig figure{margin:0;background:var(--img-bg);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:4px;width:200px;max-width:100%}
+.fig img{width:100%;height:130px;object-fit:contain}
+.fig figcaption{font-size:13px;color:#3C4658;text-align:center}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--display);font-weight:600;background:var(--sunk)}
+td.num{font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--ink);color:var(--bg)}
+.btn.acc{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.acc{color:#1a0d04}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.acc{color:#1a0d04}}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.q{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.q .prompt{font-size:18px;font-weight:700}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+.opt[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+input[type=text],input[type=number],select{background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0;max-width:100%}
+input.bad{border-color:var(--bad)} input.good{border-color:var(--good)}
+.fb{border-radius:10px;padding:12px 14px}
+.fb.ok{background:var(--good-soft);color:var(--ink)} .fb.ok b:first-child{color:var(--good)}
+.fb.no{background:var(--bad-soft);color:var(--ink)} .fb.no b:first-child{color:var(--bad)}
+.fb.hint{background:var(--warn-soft)} .fb.sol{background:var(--blue-soft)}
+.ordersel{display:flex;flex-wrap:wrap;gap:8px}
+.ordersel button{background:var(--surface);border:2px dashed var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left}
+.ordersel button:disabled{opacity:.35}
+.chosen{display:flex;flex-direction:column;gap:6px;margin:0;padding-left:24px}
+.stepper{display:flex;flex-direction:column;gap:8px}
+.stepper .st{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+details.uitleg{border:1px solid var(--line);border-radius:12px;padding:0}
+details.uitleg>summary{cursor:pointer;padding:12px 16px;font-weight:800;font-family:var(--display)}
+details.uitleg>div{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+.progress{height:10px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--accent)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-weight:700;font-size:14px}
+.field .help{font-size:13px;color:var(--muted)}
+.msg{font-size:14px;border-radius:8px;padding:6px 10px}
+.msg.ok{background:var(--good-soft);color:var(--good)} .msg.no{background:var(--bad-soft);color:var(--bad)} .msg.warn{background:var(--warn-soft);color:var(--warn)}
+.report{border:2px solid var(--ink);border-radius:14px;padding:22px;background:var(--surface);display:flex;flex-direction:column;gap:14px;max-width:760px}
+.report .code{font-family:ui-monospace,Consolas,monospace;font-size:22px;font-weight:700;letter-spacing:.08em;background:var(--sunk);border-radius:8px;padding:8px 12px;display:inline-block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 16px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--sunk);border-radius:99px;overflow:hidden;min-width:60px}
+.bar>i{display:block;height:100%;background:var(--blue)}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal>div{background:var(--surface);border-radius:14px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.glos{display:grid;grid-template-columns:minmax(120px,220px) 1fr;gap:6px 18px}
+.glos dt{font-weight:800} .glos dd{margin:0;color:var(--ink-2)}
+@media (max-width:520px){.glos{grid-template-columns:1fr}.glos dd{margin-bottom:8px}}
+.chaps{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tj{display:flex;flex-direction:column;gap:12px}
+.lockbox{background:var(--warn-soft);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.checklist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px}
+.checklist li{display:flex;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:14px}
+.small{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.fb,.st{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}}
+/* nagebootst Taakbeheer-venster */
+.tm{background:#FFFFFF;color:#1B1B1B;border:1px solid #C9C9C9;border-radius:8px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;font-size:13px;max-width:640px}
+.tm .tmh{background:#F3F3F3;padding:6px 10px;font-weight:600;display:flex;justify-content:space-between;border-bottom:1px solid #DDD}
+.tm .tmt{display:flex;gap:2px;padding:0 6px;background:#F3F3F3;border-bottom:1px solid #DDD;overflow-x:auto}
+.tm .tmt span{padding:5px 8px;white-space:nowrap;color:#555}
+.tm .tmt span.on{color:#000;border-bottom:2px solid #0067C0;font-weight:600}
+.tm table{font-size:13px}
+.tm th{background:#FFF;font-family:'Segoe UI',Arial,sans-serif;font-weight:400;color:#555;border-bottom:1px solid #DDD}
+.tm td,.tm th{padding:5px 8px;border-bottom:1px solid #EEE}
+.tm td.n,.tm th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tm td.h1{background:#FFF4CC}.tm td.h2{background:#FFE08A}.tm td.h3{background:#F9B65B}
+.tm .cap{padding:6px 10px;font-size:12px;color:#666}
+.qtm{margin-top:4px}
+.sym{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.sym>div{background:var(--sunk);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.sym b{font-family:var(--display)}
+.tag{display:inline-block;font-size:12px;font-weight:800;border-radius:999px;padding:1px 9px;margin-right:4px}
+.tag.sw{background:var(--blue-soft);color:var(--blue)}.tag.hw{background:var(--accent-soft);color:var(--accent-ink)}
+kbd{font-family:ui-monospace,Consolas,monospace;font-size:.9em;background:var(--sunk);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px}
+.path{font-weight:700;color:var(--ink)}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><h1>Trage pc-dokter</h1><span>analyse · apps · updates · malware · schijf · sync</span></div>
+    <button class="teach" id="teachBtn" type="button">Leerkracht</button>
+    <nav class="tabs" role="tablist" aria-label="Onderdelen van de app">
+      <button class="tab" role="tab" id="tab-theorie" data-tab="theorie">Theorie</button>
+      <button class="tab" role="tab" id="tab-oefenen" data-tab="oefenen">Oefenen</button>
+      <button class="tab" role="tab" id="tab-praktijk" data-tab="praktijk">Praktijk</button>
+      <button class="tab" role="tab" id="tab-toets" data-tab="toets">Eindtoets <span class="lock" id="tabLock"></span></button>
+    </nav>
+  </div>
+</header>
+<main id="main"></main>
+<div id="modalRoot"></div>
+
+<script>
+"use strict";
+/* ---------- opslag ---------- */
+const KEY='trage-pc-dokter-v2';
+let S={naam:'',klas:'',prog:{},unlocked:false,prak:{},toets:null,lastTab:'theorie'};
+try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* ---------- hulpjes ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pickN(a,n){return shuffle(a).slice(0,n);}
+function parseNum(v){const m=String(v==null?'':v).replace(/\s/g,'').replace(',','.').match(/-?\d+(\.\d+)?/);return m?+m[0]:null;}
+const nl=n=>String(n).replace('.',',');
+
+/* ---------- hoofdstukken en woordenlijst ---------- */
+const CH={H1:'Oorzaken en prestatie-analyse',H2:'Opstartprogramma\'s, apps en extensies',H3:'Zware programma\'s en te veel tegelijk',H4:'Een verouderde pc',H5:'Updates',H6:'Virussen en soorten malware',H7:'Opstarten: BIOS/UEFI',H8:'Opslag: vol, traag of versleten',H9:'Synchronisatie en cloudopslag',P:'Praktijk: waar zit het probleem?'};
+const G={
+'Software':['De programma\'s en het besturingssysteem: alles wat je niet kan vastnemen.','H1'],
+'Hardware':['De fysieke onderdelen van de pc: processor, RAM, schijf, grafische kaart …','H1'],
+'Bottleneck':['Het onderdeel dat de rest ophoudt, zoals de smalste plek van een fles.','H1'],
+'Taakbeheer':['Windows-venster dat toont welke programma\'s draaien en hoe zwaar de pc belast is. Snel openen: Ctrl + Shift + Esc.','H1'],
+'Opstartprogramma':['Programma dat automatisch mee opstart wanneer je je aanmeldt bij Windows.','H2'],
+'Invloed op opstarten':['Kolom in Taakbeheer → Opstarten: hoeveel een programma het opstarten vertraagt (Hoog, Gemiddeld, Laag).','H2'],
+'Bloatware':['Overbodige software die vooraf geïnstalleerd is of ongemerkt mee geïnstalleerd werd.','H2'],
+'Aangepaste installatie':['Installatiekeuze waarbij je zelf ziet en uitvinkt wat er mee geïnstalleerd wordt.','H2'],
+'Systeemvereisten':['Wat een programma minstens nodig heeft (minimum) of nodig heeft om vlot te werken (aanbevolen).','H3'],
+'Processor (CPU)':['Voert alle berekeningen uit. In Taakbeheer: kolom CPU.','H3'],
+'Werkgeheugen (RAM)':['Tijdelijk geheugen voor alles wat open staat. Vol? Dan wordt de pc traag.','H3'],
+'Wisselbestand':['Stuk van de schijf dat Windows gebruikt als extra RAM wanneer het RAM vol is. Veel trager dan echt RAM.','H3'],
+'Grafische kaart (GPU)':['Maakt het beeld; zwaar belast bij games, video en 3D. In Taakbeheer: kolom GPU.','H3'],
+'Taak beëindigen':['Knop in Taakbeheer die een programma geforceerd afsluit. Niet-opgeslagen werk gaat verloren.','H3'],
+'Besturingssysteem (OS)':['Operating System: de basissoftware die de pc laat werken, bv. Windows 11.','H4'],
+'Einde ondersteuning':['Datum waarna de maker geen gratis beveiligingsupdates meer geeft. Windows 10: 14 oktober 2025.','H4'],
+'TPM 2.0':['Beveiligingschip (of firmwarefunctie) die Windows 11 verplicht nodig heeft.','H4'],
+'Upgraden':['Een onderdeel vervangen door een beter exemplaar, bv. HDD → SSD of 4 GB → 8 GB RAM.','H4'],
+'Windows Update':['Onderdeel van Instellingen dat updates voor Windows zoekt en installeert.','H5'],
+'Updategeschiedenis':['Lijst van geïnstalleerde en mislukte updates. Hier kan je ook updates verwijderen.','H5'],
+'Actieve uren':['Uren waarin je de pc gebruikt; Windows start dan niet vanzelf opnieuw op voor updates.','H5'],
+'Stuurprogramma (driver)':['Software die Windows laat samenwerken met een stuk hardware.','H5'],
+'Software-updater':['Programma dat al je andere programma\'s in één keer bijwerkt, bv. winget of Patch My PC.','H5'],
+'Malware':['Verzamelnaam voor kwaadaardige software: virussen, spyware, adware, ransomware …','H6'],
+'Antivirus':['Programma dat malware opspoort en verwijdert. In Windows ingebouwd: Microsoft Defender.','H6'],
+'Realtimebeveiliging':['De antivirus controleert elk bestand op het moment dat het geopend of gedownload wordt.','H6'],
+'On-demand scanner':['Tweede scanner die je alleen af en toe zelf start als controle; draait niet continu.','H6'],
+'Virusdefinities':['De "opsporingsberichten" van een antivirus. Moeten up-to-date zijn om nieuwe malware te herkennen.','H6'],
+'BIOS/UEFI':['Firmware op het moederbord die de pc opstart. UEFI is de moderne opvolger van het BIOS.','H7'],
+'POST':['Power-On Self-Test: de controle van de hardware net na het aanzetten.','H7'],
+'Fast Boot':['UEFI-instelling die de POST verkort door minder te controleren.','H7'],
+'Bootvolgorde':['De volgorde waarin de firmware de opslagapparaten afzoekt naar een besturingssysteem.','H7'],
+'Laatste BIOS-tijd':['In Taakbeheer → Opstarten: hoeveel seconden de firmware nodig had voor Windows begon te laden.','H7'],
+'HDD':['Harde schijf met draaiende platen en een leeskop. Goedkoop en groot, maar traag.','H8'],
+'SSD':['Solid State Drive: opslag met flashgeheugen, zonder bewegende delen. Veel sneller dan een HDD.','H8'],
+'SSHD':['Hybride schijf: een HDD met een klein stuk flashgeheugen voor veelgebruikte bestanden.','H8'],
+'NVMe':['Snelle aansluiting voor SSD\'s (M.2-reepje). Sneller dan een SSD via SATA.','H8'],
+'Schijfopruiming':['Windows-hulpmiddel (cleanmgr) dat tijdelijke en overbodige bestanden verwijdert.','H8'],
+'Defragmenteren':['Stukjes van bestanden op een HDD weer naast elkaar zetten. Niet nodig bij een SSD.','H8'],
+'TRIM':['Opdracht waarmee Windows de SSD laat weten welke blokken vrij zijn. Gebeurt via "Stations optimaliseren".','H8'],
+'Vrije ruimte wissen':['Vrije ruimte overschrijven zodat verwijderde bestanden niet terug te halen zijn. Voor privacy, niet voor snelheid.','H8'],
+'Broncontrole':['Windows-tool (resmon) die per proces in detail toont wat het met processor, geheugen, schijf en netwerk doet.','H1'],
+'Betrouwbaarheidsgeschiedenis':['Windows-tool die per dag toont welke programma\'s crashten en welke updates mislukten (rode kruisjes).','H1'],
+'Prestatiemeter':['Windows-tool (perfmon) die prestaties meet; perfmon /report maakt een systeemdiagnoserapport.','H1'],
+'Systeeminformatie (msinfo32)':['Windows-tool met een overzicht van de hardware, de BIOS-versie en de Windows-versie.','H1'],
+'CrystalDiskInfo':['Gratis programma dat de SMART-gegevens van een schijf leest: Goed, Let op of Slecht.','H8'],
+'SMART':['Gezondheidsrapport dat een harde schijf of SSD zelf bijhoudt (Self-Monitoring, Analysis and Reporting Technology).','H8'],
+'Foutcontrole':['Controle van een station op fouten: Eigenschappen → Extra → Controleren, of chkdsk.','H8'],
+'Achtergrond-app':['App die blijft draaien (meldingen, synchroniseren, updates) ook als je ze niet geopend hebt.','H2'],
+'Browserextensie':['Klein programma dat je aan de browser toevoegt. Elke extensie gebruikt geheugen en processor.','H2'],
+'Taakbeheer van de browser':['Overzicht per tabblad en per extensie van geheugen en processor. Openen met Shift + Esc in Chrome of Edge.','H2'],
+'Virus':['Malware die zich aan bestanden hecht en zich verspreidt als je ze opent.','H6'],
+'Worm':['Malware die zichzelf verspreidt over het netwerk, zonder dat je iets opent.','H6'],
+'Trojaans paard':['Malware die zich voordoet als een nuttig programma.','H6'],
+'Spyware':['Malware die je bespioneert en gegevens doorstuurt.','H6'],
+'Adware':['Software die ongevraagd reclame en pop-ups toont.','H6'],
+'Ransomware':['Malware die je bestanden versleutelt en losgeld vraagt.','H6'],
+'Cryptominer':['Malware die je processor gebruikt om cryptomunten te maken. De pc wordt traag en warm.','H6'],
+'Ongewenste app (PUP)':['Potentieel ongewenst programma: werkbalken of "pc-optimizers" die meeliften met gratis software.','H6'],
+'Synchronisatie':['Bestanden gelijk houden op de pc en in de cloud: wat verandert, wordt geüpload of gedownload.','H9'],
+'Bestanden op aanvraag':['OneDrive-functie: bestanden staan in Verkenner, maar nemen pas ruimte in als je ze opent.','H9'],
+'Synchronisatie onderbreken':['OneDrive tijdelijk laten pauzeren: 2, 8 of 24 uur.','H9'],
+'Opslagsensor':['Windows-functie die automatisch tijdelijke bestanden opruimt en ongebruikte OneDrive-bestanden alleen online zet.','H9']};
+function gloss(opt){let best=null;const o=String(opt).toLowerCase();for(const k in G){const kl=k.toLowerCase();if(o===kl||o.startsWith(kl)||kl.startsWith(o)){if(!best||k.length>best.length)best=k;}}if(!best){for(const k in G){const kl=k.toLowerCase().replace(/ \(.*\)$/,'');if(kl.length>=4&&o.includes(kl)&&(!best||k.length>best.length))best=k;}}return best?G[best][0]:null;}
+
+/* ---------- vraagtypes ---------- */
+function mc(prompt,answer,distractors,why,hint,n=2){return {type:'mc',prompt,answer,options:shuffle([answer,...pickN([...new Set(distractors)].filter(d=>d!==answer),n)]),why,hint};}
+function fromFacts(facts){const f=rnd(facts);return mc(f.q,f.a,f.d,f.w,f.h,f.n||2);}
+function fromGloss(ch){const ks=Object.keys(G).filter(k=>G[k][1]===ch);const k=rnd(ks);const others=ks.filter(x=>x!==k);if(Math.random()<0.5)return mc(`Welk begrip hoort bij: "${G[k][0]}"`,k,others,`${k}: ${G[k][0]}`,'Zoek het sleutelwoord in de omschrijving.');return mc(`Wat betekent: ${k}?`,G[k][0],others.map(x=>G[x][0]),`${k}: ${G[k][0]}`,'Denk aan de uitleg in Theorie.');}
+function toMC(q){if(q.type!=='num')return q;const u=q.unit?' '+q.unit:'';const A=nl(q.answer)+u;const ds=[...new Set((q.distr||[]).map(x=>nl(x)+u))].filter(x=>x!==A);
+ return {type:'mc',prompt:q.prompt,answer:A,options:shuffle([A,...pickN(ds,3)]),why:q.why,hint:q.hint};}
+
+/* Taakbeheer-nabootsing (HTML in een vraag: de vraag bevat <br>) */
+function tmBox(tab,head,rows,cap){const tabs=['Processen','Prestaties','App-geschiedenis','Opstarten','Gebruikers','Details','Services'];
+ return `<div class="tm qtm"><div class="tmh"><span>Taakbeheer</span><span>— ☐ ✕</span></div><div class="tmt">${tabs.map(t=>`<span class="${t===tab?'on':''}">${t}</span>`).join('')}</div><div class="tbl"><table><tr>${head.map((h,i)=>`<th class="${i?'n':''}">${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i?'n':''} ${typeof c==='object'?c.c:''}">${typeof c==='object'?c.t:c}</td>`).join('')}</tr>`).join('')}</table></div>${cap?`<p class="cap">${cap}</p>`:''}</div>`;}
+const heat=p=>p>=85?'h3':p>=60?'h2':p>=30?'h1':'';
+
+/* ---------- E1: software of hardware? ---------- */
+const CAUSES=[['Synchronisatie (OneDrive, Google Drive) op de achtergrond','Software','Synchronisatie is een programma dat bestanden uploadt en downloadt.'],['Té veel programma\'s starten mee op','Software','Je zet ze uit in Taakbeheer: dat is een instelling, geen onderdeel.'],['Updates die op de achtergrond draaien','Software','Updates zijn nieuwe versies van programma\'s.'],['Een virus of andere malware','Software','Malware is een (kwaadaardig) programma.'],['Té zware programma\'s','Software én hardware','Het programma (software) vraagt meer dan de onderdelen (hardware) aankunnen.'],['Met te veel programma\'s tegelijk werken','Software én hardware','Te veel programma\'s (software) voor te weinig RAM of een te trage processor (hardware).'],['Een verouderde pc','Software én hardware','Oude onderdelen (hardware) en een oud besturingssysteem (software).'],['Té veel controles bij het opstarten','Software én hardware','Instellingen in de firmware (software) en aangesloten onderdelen (hardware).'],['Te weinig ruimte of een trage harde schijf','Software én hardware','Te veel bestanden (software) of een trage HDD (hardware).']];
+const SYM=[['Elke ochtend is de pc traag; in het systeemvak draait OneDrive met blauwe pijltjes.','Synchronisatie op de achtergrond'],['De pc is traag vlak na het aanmelden; na een paar minuten gaat het beter.','Te veel opstartprogramma\'s'],['Alles hapert zodra je het nieuwe spel opstart dat je net kocht.','Een te zwaar programma'],['Met 40 browsertabbladen, Teams en Word open loopt alles vast.','Te veel programma\'s tegelijk'],['Er verschijnen pop-ups, je startpagina is veranderd en de ventilator draait voluit zonder reden.','Een virus of malware'],['De pc is al een uur traag en Windows vraagt om opnieuw op te starten.','Updates op de achtergrond'],['Het duurt lang voor je zelfs maar het Windows-logo ziet.','Te veel controles bij het opstarten'],['Verkenner toont een rode balk bij station C:.','Te weinig ruimte op de schijf'],['Een pc uit 2012 met 4 GB RAM en Windows 10.','Een verouderde pc']];
+const SYMA=[...new Set(SYM.map(x=>x[1]))];
+function genE1(){if(Math.random()<0.45){const c=rnd(CAUSES);return mc(`Oorzaak: "${c[0]}". Is dit een software-, hardware- of gemengd probleem?`,c[1],['Software','Hardware','Software én hardware'],c[2],'Software = programma\'s en instellingen. Hardware = onderdelen. Speelt het allebei mee?');}
+ const s=rnd(SYM);return mc(`Symptoom: ${s[0]} Wat is de meest waarschijnlijke oorzaak?`,s[1],SYMA,`${s[0]} → ${s[1].toLowerCase()}.`,'Let op wanneer het traag is: bij het opstarten, bij één programma, altijd …',3);}
+
+/* ---------- ET: analysetools ---------- */
+const TOOLS=[['Je wil snel zien welk programma nu de processor belast.','Taakbeheer'],
+ ['Je wil per proces zien welke bestanden de schijf lezen en schrijven.','Broncontrole (resmon)'],
+ ['De pc liep deze week drie keer vast. Je wil zien op welke dagen en door welk programma.','Betrouwbaarheidsgeschiedenis'],
+ ['Je wil een volledig systeemdiagnoserapport na 60 seconden meten.','Prestatiemeter (perfmon /report)'],
+ ['Je zoekt de BIOS-versie en het merk van het moederbord.','Systeeminformatie (msinfo32)'],
+ ['De harde schijf maakt klikgeluiden; je wil de SMART-status lezen.','CrystalDiskInfo'],
+ ['Je wil zien welke browserextensie veel geheugen gebruikt.','Taakbeheer van de browser (Shift + Esc)']];
+const TOOLA=TOOLS.map(t=>t[1]);
+const FT=[
+ {q:'Hoe open je Broncontrole?',a:'Typ resmon in het startmenu',d:['Druk F2 bij het opstarten','Typ msinfo32 in het startmenu','Instellingen → Bluetooth'],w:'Broncontrole (Resource Monitor) open je met resmon. Het toont per proces processor, geheugen, schijf en netwerk in detail.',h:'res(ource) mon(itor).'},
+ {q:'Wat betekent een rode X in Betrouwbaarheidsgeschiedenis?',a:'Een kritieke gebeurtenis: een programma crashte of een update mislukte',d:['Een virus is verwijderd','De pc is uitgeschakeld','Er staat een nieuwe update klaar'],w:'Klik op de dag: onderaan lees je welk programma of welke update het was. Steeds hetzelfde programma? Dat is je verdachte.',h:'Rood = er ging iets mis.'},
+ {q:'Wat is de beste volgorde bij een prestatie-analyse?',a:'Eerst Taakbeheer voor het overzicht, dan de tool die het detail toont',d:['Meteen Windows opnieuw installeren','Eerst een nieuwe pc kopen','Eerst de BIOS updaten'],w:'Meten is weten: overzicht → detail → oplossing.',h:'Van groot naar klein.'},
+ {q:'Wat maakt perfmon /report?',a:'Een systeemdiagnoserapport na ongeveer 60 seconden meten',d:['Een back-up van al je bestanden','Een lijst van alle wifi-netwerken','Een nieuwe gebruiker'],w:'De Prestatiemeter meet een minuut en toont dan waarschuwingen en details over processor, geheugen, schijf en netwerk. Vraagt beheerdersrechten.',h:'Report = rapport.'}];
+function genET(){if(Math.random()<0.6){const t=rnd(TOOLS);const k=t[1].split(' (')[0];return mc(t[0]+' Welke tool gebruik je?',t[1],TOOLA,`${t[1]}: ${(G[t[1]]||G[k]||['zie Theorie H1.'])[0]}`,'Overzicht = Taakbeheer. Detail per proces = Broncontrole. Crashes per dag = Betrouwbaarheidsgeschiedenis. Schijfgezondheid = CrystalDiskInfo.',3);}return fromFacts(FT);}
+
+/* ---------- E2: opstartprogramma's ---------- */
+const KEEP=[['Windows Security notification icon','Microsoft Corporation','het toont meldingen van je antivirus'],['Realtek HD Audio Universal Service','Realtek Semiconductor','het hoort bij je geluidskaart'],['Synaptics TouchPad Enhancements','Synaptics Incorporated','het laat het touchpad van je laptop goed werken']];
+const OFF=[['Spotify','Spotify AB'],['Steam Client Bootstrapper','Valve Corporation'],['Discord','Discord Inc.'],['Adobe Creative Cloud','Adobe Inc.'],['Epic Games Launcher','Epic Games, Inc.'],['Zoom','Zoom Video Communications'],['EA app','Electronic Arts'],['iTunesHelper','Apple Inc.'],['Microsoft Teams','Microsoft'],['CCleaner','Piriform Software']];
+const F2=[
+ {q:'Wat is de snelste manier om Taakbeheer te openen?',a:'Ctrl + Shift + Esc',d:['Ctrl + Alt + Delete en dan meteen Enter','Windows-toets + E','Alt + F4'],w:'Ctrl + Shift + Esc opent Taakbeheer meteen. Ctrl + Alt + Delete toont eerst een beveiligingsscherm, daarna kies je Taakbeheer.',h:'Eén toetsencombinatie, zonder tussenscherm.'},
+ {q:'In welk tabblad van Taakbeheer zet je opstartprogramma\'s aan of uit?',a:'Opstarten (Windows 11: Opstart-apps)',d:['Processen','Prestaties','Services'],w:'Tabblad Opstarten: rechtsklik op een programma → Uitschakelen.',h:'Het gaat over het opstarten van de pc.'},
+ {q:'Waar vind je in Windows 11 de opstartprogramma\'s ook nog?',a:'Instellingen → Apps → Opstarten',d:['Instellingen → Bluetooth en apparaten','Verkenner → Deze pc','Configuratiescherm → Muis'],w:'Instellingen → Apps → Opstarten toont dezelfde lijst met schakelaars.',h:'Het zijn apps.'},
+ {q:'Je schakelt Spotify uit bij het opstarten. Wat gebeurt er?',a:'Spotify blijft geïnstalleerd, maar start niet meer vanzelf',d:['Spotify wordt verwijderd','Spotify werkt niet meer','Je account wordt afgemeld'],w:'Uitschakelen is niet verwijderen: je start het programma gewoon zelf wanneer je het nodig hebt.',h:'Uitschakelen ≠ verwijderen.'},
+ {q:'Welke kolom in Taakbeheer → Opstarten toont hoeveel een programma het opstarten vertraagt?',a:'Invloed op opstarten',d:['Uitgever','Status','Laatste BIOS-tijd'],w:'Invloed op opstarten: Hoog, Gemiddeld, Laag of Niet gemeten. Begin bij "Hoog".',h:'Het woord "invloed".'},
+ {q:'Waar verwijder je een programma dat je nooit gebruikt?',a:'Instellingen → Apps → Geïnstalleerde apps',d:['Taakbeheer → Opstarten → Uitschakelen','De snelkoppeling op het bureaublad wissen','Prullenbak leegmaken'],w:'Via Instellingen → Apps (of Configuratiescherm → Programma\'s en onderdelen) verwijder je het programma echt.',h:'Een snelkoppeling wissen verwijdert het programma niet.'},
+ {q:'Wat doe je best tijdens het installeren van gratis software?',a:'Kies "Aangepast" en vink extra programma\'s en werkbalken uit',d:['Altijd snel op "Volgende" klikken','Kies "Snel installeren", dat is sneller','Installeer alles wat wordt voorgesteld'],w:'Gratis software installeert vaak extra\'s (bloatware). Bij een aangepaste installatie zie je ze en kan je ze uitvinken. Nog beter: installeer niets wat je niet nodig hebt.',h:'Waar zie je wat er allemaal mee geïnstalleerd wordt?'},
+ {q:'Wat is een achtergrond-app?',a:'Een app die blijft draaien (meldingen, synchroniseren), ook als je ze niet geopend hebt',d:['Een app die enkel op je bureaublad staat','Een virus','Een app zonder updates'],w:'In Windows 11 beperk je dat per app: Instellingen → Apps → Geïnstalleerde apps → ⋯ → Geavanceerde opties → Machtigingen voor achtergrond-apps.',h:'Achtergrond = je ziet het niet.'},
+ {q:'Je browser is traag. Hoe zie je welke extensie veel geheugen gebruikt?',a:'Shift + Esc in Chrome of Edge: het taakbeheer van de browser',d:['Ctrl + Alt + Delete','Instellingen → Windows Update','Schijfopruiming'],w:'Het taakbeheer van de browser toont per tabblad en per extensie geheugen en processor. Ongebruikte extensies schakel je uit of verwijder je.',h:'Bijna dezelfde toetsen als Taakbeheer, maar zonder Ctrl.'},
+ {q:'Een programma blijft draaien in het systeemvak naast de klok, ook al is het venster dicht. Hoe sluit je het echt?',a:'Rechtsklik op het icoontje → Afsluiten',d:['Het venster nog eens sluiten','De snelkoppeling wissen','Het scherm uitzetten'],w:'Veel programma\'s (Steam, Spotify, Discord) minimaliseren naar het systeemvak. Daar sluit je ze echt af.',h:'Het systeemvak zit rechtsonder.'},
+ {q:'Wat is bloatware?',a:'Overbodige software die vooraf of ongemerkt geïnstalleerd werd',d:['Een virus dat bestanden versleutelt','Een update van Windows','Een snelle SSD'],w:'Bloatware neemt ruimte in en start vaak mee op. Verwijder wat je niet gebruikt.',h:'Bloat = opgeblazen.'}];
+function genE2(){const k=ri(0,3);
+ if(k===0){const kp=rnd(KEEP);const offs=pickN(OFF,2);return mc('Welk opstartprogramma laat je beter <b>ingeschakeld</b>?',kp[0],offs.map(o=>o[0]),`${kp[0]} laat je aan: ${kp[2]}. De andere start je zelf wanneer je ze nodig hebt.`,'Wat heb je nodig om veilig en normaal te werken (beveiliging, geluid, touchpad)?');}
+ if(k===1){const apps=pickN(OFF,4);const imp=shuffle(['Hoog','Gemiddeld','Laag','Niet gemeten']);const best=apps[imp.indexOf('Hoog')][0];
+  const tbl=tmBox('Opstarten',['Naam','Uitgever','Status','Invloed op opstarten'],apps.map((a,i)=>[a[0],a[1],'Ingeschakeld',imp[i]]),'Laatste BIOS-tijd: '+nl((ri(40,140)/10).toFixed(1))+' seconden');
+  return {type:'mc',prompt:`Je mag één programma uitschakelen. Welk geeft de meeste winst?<br>${tbl}`,answer:best,options:shuffle(apps.map(a=>a[0])).slice(0,4),why:`${best} heeft invloed "Hoog": dat vertraagt het opstarten het meest.`,hint:'Kijk naar de laatste kolom.'};}
+ if(k===2)return fromGloss('H2');
+ return fromFacts(F2);}
+
+/* ---------- E3: taakbeheer lezen ---------- */
+const PROCS=['Google Chrome','Microsoft Teams','Microsoft Word','Spotify','Microsoft Edge','Discord','Adobe Photoshop','Fortnite','OneDrive','Windows Verkenner','Excel','Zoom'];
+const PARTS_H=[['CPU','Processor (CPU)','Sluit zware programma\'s; blijft het vaak boven 90 %, dan is de processor te traag of zit er malware.'],['Geheugen','Werkgeheugen (RAM)','Sluit programma\'s en tabbladen; blijft het vol, dan is extra RAM de oplossing.'],['Schijf','Opslag (schijf)','Een HDD die constant 100 % haalt, is de rem: vervang hem door een SSD.'],['GPU','Grafische kaart (GPU)','Zet de grafische instellingen van het spel lager of kies een betere grafische kaart.']];
+function genE3(){const k=ri(0,3);
+ if(k<=1){const ps=pickN(PROCS,5);const cpu=ps.map(()=>ri(0,14));const mem=ps.map(()=>ri(80,1400));const which=k===0?'cpu':'mem';const idx=ri(0,4);
+  if(which==='cpu')cpu[idx]=ri(45,85);else mem[idx]=ri(1900,3800);
+  const totC=Math.min(99,cpu.reduce((a,b)=>a+b,0)+ri(2,8)),totM=ri(55,96);
+  const rows=ps.map((p,i)=>[p,{t:cpu[i]+' %',c:heat(cpu[i])},{t:mem[i].toLocaleString('nl-BE')+' MB',c:heat(mem[i]/40)},nl((ri(0,20)/10).toFixed(1))+' MB/s']);
+  const tbl=tmBox('Processen',['Naam',totC+' %<br>CPU',totM+' %<br>Geheugen','Schijf'],rows);
+  const q=which==='cpu'?'Welk programma belast de <b>processor</b> het meest?':'Welk programma gebruikt het meeste <b>werkgeheugen</b>?';
+  return {type:'mc',prompt:`${q}<br>${tbl}`,answer:ps[idx],options:shuffle([ps[idx],...pickN(ps.filter((_,i)=>i!==idx),2)]),why:`${ps[idx]}: ${which==='cpu'?cpu[idx]+' % CPU':mem[idx].toLocaleString('nl-BE')+' MB geheugen'}. Hoe donkerder de kleur in Taakbeheer, hoe zwaarder de belasting.`,hint:which==='cpu'?'Kijk in de kolom CPU naar het hoogste percentage.':'Kijk in de kolom Geheugen naar het grootste getal.'};}
+ if(k===2){const b=rnd(PARTS_H);const vals=PARTS_H.map(p=>p===b?ri(95,100):ri(5,45));
+  const tbl=tmBox('Processen',['Naam',...PARTS_H.map((p,i)=>vals[i]+' %<br>'+p[0])],pickN(PROCS,3).map(p=>[p,...PARTS_H.map((_,i)=>{const v=Math.round(vals[i]*ri(10,35)/100);return {t:v+' %',c:heat(v)};})]),'Bovenaan elke kolom staat de totale belasting.');
+  return {type:'mc',prompt:`Welk onderdeel is hier de bottleneck?<br>${tbl}`,answer:b[1],options:PARTS_H.map(p=>p[1]),why:`${b[0]} staat op ${vals[PARTS_H.indexOf(b)]} %. ${b[2]}`,hint:'Zoek bovenaan het percentage dat (bijna) 100 % is.'};}
+ const tot=rnd([4,8,8,16,16,32]);const used=Math.round(tot*ri(55,97))/100;const pct=Math.round(used/tot*100);
+ return {type:'num',prompt:`Taakbeheer → Prestaties → Geheugen toont: ${nl(used.toFixed(1))} GB van ${tot} GB in gebruik. Hoeveel procent van het RAM is in gebruik? (afgerond)`,answer:pct,tol:1,unit:'%',distr:[pct-10,pct+7,Math.round(tot/used*10),100-pct].filter(x=>x>0&&x<=100&&x!==pct),why:`${nl(used.toFixed(1))} ÷ ${tot} × 100 = ${pct} %.${pct>=85?' Dat is bijna vol: Windows gaat het wisselbestand op de schijf gebruiken en dan wordt alles traag.':''}`,hint:'Gebruikt ÷ totaal × 100.'};}
+
+/* ---------- E4: systeemvereisten ---------- */
+const F4=[
+ {q:'Wat is het verschil tussen minimale en aanbevolen systeemvereisten?',a:'Minimum: het programma start. Aanbevolen: het programma werkt vlot.',d:['Er is geen verschil','Minimum is voor laptops, aanbevolen voor desktops','Aanbevolen is het minimum voor Windows 11'],w:'Haal je alleen het minimum, dan werkt het programma, maar vaak traag. Kijk dus naar de aanbevolen vereisten.',h:'Starten of vlot werken?'},
+ {q:'Wanneer controleer je de systeemvereisten?',a:'Vóór je het programma koopt of installeert',d:['Pas als het programma traag is','Nooit, Windows doet dat altijd zelf','Na een Windows-update'],w:'Eerst vergelijken, dan installeren. Op Android doet de Play Store dat meestal automatisch: een app die niet past, kan je daar vaak niet eens vinden.',h:'Voorkomen is beter dan genezen.'},
+ {q:'Waar lees je snel hoeveel RAM en welke processor je pc heeft?',a:'Instellingen → Systeem → Info',d:['Instellingen → Persoonlijke instellingen','Verkenner → Downloads','Taakbeheer → Opstarten'],w:'Instellingen → Systeem → Info toont processor, RAM en de Windows-versie. Taakbeheer → Prestaties toont dat ook.',h:'Informatie over je systeem.'},
+ {q:'Waarom haperen zware programma\'s vaak op een pc met te weinig RAM?',a:'Windows gebruikt dan de veel tragere schijf als extra geheugen (wisselbestand)',d:['De processor schakelt zichzelf uit','Het scherm krijgt te weinig stroom','Het programma wordt automatisch verwijderd'],w:'Is het RAM vol, dan zet Windows stukken in het wisselbestand op de schijf. Dat is vele keren trager.',h:'Waar gaat Windows heen als het werkblad vol ligt?'},
+ {q:'Wat doe je eerst als alles traag is omdat je veel programma\'s open hebt?',a:'Onnodige programma\'s en tabbladen sluiten',d:['Meteen extra RAM kopen','Windows opnieuw installeren','De BIOS-instellingen wijzigen'],w:'Eerst sluiten wat je niet nodig hebt (taakbalk of Taakbeheer). Blijft het RAM vol bij gewoon gebruik? Dan pas extra RAM.',h:'Begin met wat gratis is.'},
+ {q:'Een programma reageert niet meer. Hoe sluit je het?',a:'Taakbeheer → Processen → rechtsklik → Taak beëindigen',d:['Taakbeheer → Opstarten → Uitschakelen','De pc uittrekken','Het programma verwijderen'],w:'Taak beëindigen sluit het programma geforceerd. Wat niet opgeslagen was, ben je kwijt.',h:'Een lopende taak stoppen.'}];
+function genE4(){if(Math.random()<0.3)return fromFacts(F4);
+ const req={cpu:rnd([2,4,4,6]),ram:rnd([4,8,8,16]),ssd:rnd([20,50,75,100]),gpu:rnd([2,4,6]),os:rnd(['Windows 10 64-bit','Windows 11'])};
+ const pc={cpu:req.cpu+rnd([0,2,4]),ram:req.ram*rnd([1,2]),ssd:req.ssd+ri(10,200),gpu:req.gpu+rnd([0,2]),os:'Windows 11'};
+ const parts=['Processor','Werkgeheugen (RAM)','Vrije opslagruimte','Grafische kaart','Besturingssysteem'];
+ let bad=Math.random()<0.2?null:rnd(['cpu','ram','ssd','gpu']);
+ if(bad==='cpu')pc.cpu=Math.max(1,req.cpu-2);if(bad==='ram')pc.ram=req.ram/2;if(bad==='ssd')pc.ssd=Math.max(5,req.ssd-ri(5,15));if(bad==='gpu')pc.gpu=Math.max(1,req.gpu-ri(1,2));
+ const name=rnd(['het spel "Racer X"','het montageprogramma "CutPro"','het tekenprogramma "Draw 3D"','het spel "Galaxy Builders"']);
+ const rows=[['Processor',req.cpu+' kernen',pc.cpu+' kernen'],['Werkgeheugen (RAM)',req.ram+' GB',pc.ram+' GB'],['Vrije opslagruimte',req.ssd+' GB',pc.ssd+' GB'],['Grafische kaart',req.gpu+' GB videogeheugen',pc.gpu+' GB videogeheugen'],['Besturingssysteem',req.os,pc.os]];
+ const tbl=`<div class="tbl"><table><tr><th>Onderdeel</th><th>Minimum voor ${esc(name.split('"')[1])}</th><th>Jouw pc</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table></div>`;
+ const map={cpu:'Processor',ram:'Werkgeheugen (RAM)',ssd:'Vrije opslagruimte',gpu:'Grafische kaart'};
+ const ans=bad?map[bad]+' voldoet niet':'De pc voldoet aan alles';
+ const opts=shuffle([ans,...pickN(['De pc voldoet aan alles',...Object.values(map).map(x=>x+' voldoet niet')].filter(x=>x!==ans),3)]);
+ return {type:'mc',prompt:`Je wil ${name} installeren. Vergelijk de minimale systeemvereisten met jouw pc.<br>${tbl}`,answer:ans,options:opts,why:bad?`${map[bad]}: de pc heeft minder dan het minimum. Het programma zal niet of heel traag werken.`:'Alles is gelijk aan of beter dan het minimum. Let wel: aan het minimum voldoen betekent nog niet dat het vlot loopt.',hint:'Vergelijk rij per rij: is jouw getal even groot of groter?'};}
+
+/* ---------- E5: verouderde pc ---------- */
+const F5=[
+ {q:'Wanneer stopte Microsoft met de gewone gratis ondersteuning van Windows 10?',a:'14 oktober 2025',d:['1 januari 2020','14 oktober 2030','Windows 10 wordt altijd ondersteund'],w:'Sinds 14 oktober 2025 krijgt Windows 10 geen gewone gratis beveiligingsupdates meer. Overstappen naar Windows 11 (als de pc het toelaat) is de veilige keuze.',h:'Recent, in de herfst.'},
+ {q:'Welke beveiligingsvoorwaarde vraagt Windows 11 die oudere pc\'s vaak niet hebben?',a:'TPM 2.0',d:['Een dvd-station','Een HDD','Een seriële poort'],w:'Windows 11 vraagt o.a. TPM 2.0, Secure Boot (UEFI), minstens 4 GB RAM, 64 GB opslag en een recente 64-bit processor.',h:'Een beveiligingschip.'},
+ {q:'Welke upgrade geeft een oude pc met een HDD meestal de grootste snelheidswinst?',a:'De HDD vervangen door een SSD',d:['Een nieuwe muis','Een groter scherm','Een snellere printer'],w:'Een SSD laat Windows en programma\'s vele keren sneller opstarten. Het is vaak de goedkoopste grote verbetering.',h:'Welk onderdeel heeft draaiende platen?'},
+ {q:'Waar zie je hoe zwaar de grafische kaart belast wordt?',a:'Taakbeheer → Prestaties → GPU',d:['Taakbeheer → Opstarten','Instellingen → Windows Update','Verkenner → Deze pc'],w:'Taakbeheer → Prestaties toont CPU, Geheugen, Schijf, Ethernet/wifi en GPU.',h:'Prestaties.'},
+ {q:'Wanneer is een nieuwe pc beter dan onderdelen bijkopen?',a:'Als de processor bij gewoon werk al op 100 % zit en het moederbord geen betere processor aankan',d:['Als het bureaublad rommelig is','Als er één update klaarstaat','Als de batterij 80 % geeft'],w:'RAM en SSD kan je vaak bijsteken. Een te oude processor en moederbord vervangen kost bijna even veel als een nieuwe pc.',h:'Welke onderdelen zijn moeilijk te vervangen?'},
+ {q:'Een programma werkt "nooit goed samen" met je besturingssysteem. Wat kan de oorzaak zijn?',a:'Het programma is niet gemaakt voor die (oude of nieuwe) Windows-versie',d:['Er staat te veel op het bureaublad','De muis is te traag','Het scherm is te klein'],w:'Controleer bij de systeemvereisten welke Windows-versies ondersteund worden.',h:'Software moet passen bij het OS.'}];
+const OLD=[['Pc uit 2015 · Intel Core i5 · 8 GB RAM · 1 TB HDD · Windows 11','De HDD vervangen door een SSD','Een HDD is de grootste rem: een SSD maakt opstarten en programma\'s openen vele keren sneller.'],['Laptop uit 2019 · Core i5 · 4 GB RAM · 256 GB SSD · RAM bij surfen 95 % vol','Extra RAM-geheugen bijsteken (naar 8 of 16 GB)','4 GB is te weinig voor Windows 11 met een browser; het RAM zit vol.'],['Pc uit 2010 · Core 2 Duo · 4 GB DDR2 · HDD · CPU 100 % bij YouTube','Een nieuwe pc overwegen','Processor, geheugen en schijf zijn alle drie verouderd; DDR2 en dit moederbord kan je niet zinvol upgraden.'],['Pc uit 2021 · Ryzen 5 · 16 GB RAM · SSD · nog Windows 10','Overstappen naar Windows 11','De hardware is goed genoeg, maar Windows 10 krijgt geen gewone gratis updates meer.'],['Pc uit 2017 · Core i7 · 16 GB RAM · SSD · spel hapert, GPU staat op 100 %','Een betere grafische kaart of lagere grafische instellingen','De GPU is de bottleneck, de rest heeft nog ruimte.']];
+const OLDA=OLD.map(o=>o[1]);
+function genE5(){if(Math.random()<0.5){const o=rnd(OLD);return mc(`${o[0]}. Wat is het beste advies?`,o[1],OLDA,o[2],'Zoek het zwakste onderdeel: HDD? weinig RAM? oud OS? alles oud?',3);}return fromFacts(F5);}
+
+/* ---------- E6: updates ---------- */
+const F6=[
+ {q:'Waar controleer je of er Windows-updates klaarstaan?',a:'Instellingen → Windows Update → Naar updates zoeken',d:['Taakbeheer → Opstarten','Configuratiescherm → Muis','Verkenner → Downloads'],w:'Instellingen → Windows Update → Naar updates zoeken. Zoek ook zelf bewust, wacht niet altijd tot Windows het doet.',h:'De naam zegt het.'},
+ {q:'Je vermoedt dat een vorige update is misgelopen. Waar kijk je?',a:'Windows Update → Updategeschiedenis',d:['Windows Update → Actieve uren','Taakbeheer → Details','Instellingen → Achtergrond'],w:'De updategeschiedenis toont mislukte updates. Daar kan je ook een update verwijderen die problemen geeft.',h:'Geschiedenis = wat er al gebeurd is.'},
+ {q:'Hoe zorg je dat Word, Excel en andere Microsoft-software mee bijgewerkt worden?',a:'Geavanceerde opties → Updates voor andere Microsoft-producten ontvangen',d:['Taakbeheer → Opstarten → Inschakelen','Elk programma opnieuw installeren','Windows opnieuw installeren'],w:'Zet in Windows Update → Geavanceerde opties de schakelaar "Updates voor andere Microsoft-producten ontvangen" aan.',h:'Andere Microsoft-producten.'},
+ {q:'Waarom is je pc soms traag terwijl er updates lopen?',a:'Downloaden en installeren gebruikt schijf, processor en internet op de achtergrond',d:['Updates verwijderen je RAM','Updates zetten de processor uit','Een update is altijd een virus'],w:'Tijdens een update werkt de pc op de achtergrond. Na de installatie en herstart is dat voorbij.',h:'Wat doet de pc ondertussen?'},
+ {q:'Hoe voorkom je dat Windows opnieuw opstart midden in je werk?',a:'Actieve uren instellen',d:['Windows Update uitschakelen','De pc nooit afsluiten','Het wisselbestand verwijderen'],w:'Tijdens je actieve uren start Windows niet vanzelf opnieuw op voor een update.',h:'De uren waarop jij actief bent.'},
+ {q:'Hoe werk je andere programma\'s (Chrome, VLC, 7-Zip …) in één keer bij?',a:'Met een software-updater, bv. winget of Patch My PC',d:['Via Taakbeheer → Opstarten','Met Schijfopruiming','Door de BIOS te updaten'],w:'Windows Update doet niet alles. Een software-updater zoekt updates voor je andere programma\'s. Winget zit in Windows: "winget upgrade --all" in Terminal.',h:'Een programma dat updates zoekt.'},
+ {q:'Wat is een stuurprogramma (driver)?',a:'Software die Windows laat samenwerken met een stuk hardware',d:['Een virus','Een onderdeel van de voeding','Een soort SSD'],w:'Verouderde drivers (bv. van de grafische kaart) kunnen een pc trager of onstabiel maken. Ze komen via Windows Update of de website van de fabrikant.',h:'Software voor hardware.'},
+ {q:'Is Windows Update helemaal uitschakelen een goede manier om je pc sneller te maken?',a:'Nee: je mist dan beveiligingsupdates en oplossingen',d:['Ja, altijd','Ja, maar alleen op laptops','Ja, updates maken de pc altijd trager'],w:'Updates kosten even tijd, maar dichten beveiligingslekken en lossen fouten op. Stel liever actieve uren in.',h:'Denk aan veiligheid.'}];
+function genE6(){return Math.random()<0.2?fromGloss('H5'):fromFacts(F6);}
+
+/* ---------- E7: virussen ---------- */
+const F7=[
+ {q:'Hoeveel antivirusprogramma\'s laat je tegelijk realtime werken?',a:'Eén',d:['Twee, dat is dubbel zo veilig','Drie','Zo veel mogelijk'],w:'Twee realtime antivirusprogramma\'s controleren elk bestand dubbel, zitten elkaar in de weg en maken de pc traag.',h:'Eén bewaker aan de deur.'},
+ {q:'Hoe gebruik je een tweede antivirusprogramma veilig?',a:'Als on-demand scanner: af en toe zelf een controle starten',d:['Ook realtime laten draaien','Het programma laten mee opstarten','Het nooit updaten'],w:'Een tweede scanner (bv. Malwarebytes Free of Microsoft Safety Scanner) start je alleen zelf als controle. Hij draait niet continu.',h:'"Af en toe" als controle.'},
+ {q:'Welke antivirus zit standaard in Windows?',a:'Microsoft Defender (Windows-beveiliging)',d:['Taakbeheer','Schijfopruiming','Windows Update'],w:'Windows-beveiliging → Virus- en bedreigingsbeveiliging. Installeer je een andere antivirus, dan gaat Defender vanzelf opzij.',h:'Defender = verdediger.'},
+ {q:'Waarom moet je antivirus regelmatig updaten?',a:'Zo kent hij de nieuwste malware (virusdefinities)',d:['Anders wordt het scherm donker','Updates maken het RAM groter','Dat hoeft niet'],w:'Elke dag verschijnt nieuwe malware. Zonder nieuwe virusdefinities herkent de antivirus die niet.',h:'Opsporingsberichten.'},
+ {q:'Welke scan van Microsoft Defender controleert de hele pc?',a:'Volledige scan',d:['Snelle scan','Opstartscan van Taakbeheer','Schijfopruiming'],w:'Snelle scan: plaatsen waar malware meestal zit. Volledige scan: alles (duurt lang). Offline-scan: na een herstart, voor hardnekkige malware.',h:'Volledig = alles.'},
+ {q:'Welk teken wijst eerder op malware?',a:'Pop-ups, een andere startpagina en de processor hoog zonder reden',d:['De klok staat juist','Er is een update klaar','De batterij laadt op'],w:'Malware draait vaak ongemerkt op de achtergrond en vraagt processor, geheugen en internet.',h:'Dingen die je niet zelf veranderd hebt.'},
+ {q:'Een installatie van een betrouwbaar programma loopt vast door de antivirus. Wat doe je?',a:'Alleen dan tijdelijk uitschakelen, zonder internetverbinding, en daarna meteen weer aanzetten',d:['De antivirus voorgoed verwijderen','Altijd zonder antivirus werken','Een tweede realtime antivirus installeren'],w:'Uitschakelen is een uitzondering: enkel voor software uit een betrouwbare bron, liefst met internet los, en daarna meteen weer aan.',h:'Zo kort en zo veilig mogelijk.'}];
+const MTYPES=[['Versleutelt je bestanden en vraagt losgeld.','Ransomware'],['Gebruikt stiekem je processor om cryptomunten te maken; de ventilator draait voluit.','Cryptominer'],['Toont ongevraagd pop-ups en reclame.','Adware'],['Volgt wat je typt en surft en stuurt dat door.','Spyware'],['Doet zich voor als een nuttig gratis programma, maar verbergt kwaadaardige software.','Trojaans paard'],['Verspreidt zichzelf over het netwerk naar andere pc\'s.','Worm'],['Hecht zich aan bestanden en verspreidt zich als je ze opent.','Virus'],['Werkbalken en "pc-optimizers" die meeliften met gratis software.','Ongewenste app (PUP)']];
+F7.push({q:'Welke soort malware maakt je pc het meest traag?',a:'Een cryptominer',d:['Een trojaans paard dat nog niets doet','Een worm op een andere pc','Ransomware die al betaald is'],w:'Een cryptominer laat je processor voortdurend rekenen: CPU hoog zonder reden, ventilator voluit, pc traag en warm.',h:'Welke gebruikt je processor?'},
+ {q:'Waar blokkeer je potentieel ongewenste apps (zoals werkbalken)?',a:'Windows-beveiliging → App- en browserbeheer → Bescherming op basis van reputatie',d:['Taakbeheer → Opstarten','Instellingen → Windows Update','Verkenner → Deze pc'],w:'Zet daar "Potentieel ongewenste apps blokkeren" aan.',h:'Reputatie van apps.'});
+function genE7(){const r=Math.random();if(r<0.35){const t=rnd(MTYPES);return mc(`Welke soort malware: "${t[0]}"`,t[1],MTYPES.map(x=>x[1]),`${t[1]}: ${G[t[1]]?G[t[1]][0]:t[0]}`,'Lees wat het doet: versleutelen, reclame, bespioneren, rekenen, vermommen, zichzelf verspreiden?',3);}return r<0.45?fromGloss('H6'):fromFacts(F7);}
+
+/* ---------- E8: opstarten ---------- */
+const BOOT=['Je drukt op de aan-knop.','De firmware (BIOS/UEFI) voert de POST uit.','De firmware zoekt de opstartschijf volgens de bootvolgorde.','Windows wordt geladen.','Je meldt je aan.','De opstartprogramma\'s starten mee op.'];
+const F8=[
+ {q:'Waarvoor staat POST?',a:'Power-On Self-Test: de controle van de hardware na het aanzetten',d:['Post-Office Start Tool','Een opstartprogramma van Windows','Een soort update'],w:'Bij de POST controleert de firmware processor, geheugen, toetsenbord, schijven …',h:'Power-On …'},
+ {q:'Je leest de tip "schakel de POST uit in de BIOS". Wat kan je in werkelijkheid doen?',a:'Fast Boot (Snel opstarten) inschakelen in de UEFI, zodat de POST korter wordt',d:['De POST volledig verwijderen','De processor uitschakelen','Windows Update uitschakelen'],w:'De POST kan je niet helemaal schrappen, maar met Fast Boot slaat de firmware tragere controles over.',h:'Snel opstarten.'},
+ {q:'Waar zie je hoelang de firmware nodig had bij de laatste start?',a:'Taakbeheer → Opstarten: Laatste BIOS-tijd',d:['Instellingen → Windows Update','Verkenner → Deze pc','Taakbeheer → Gebruikers'],w:'Laatste BIOS-tijd staat rechtsboven in het tabblad Opstarten. Enkele seconden is normaal.',h:'Het tabblad over opstarten.'},
+ {q:'Waarom zet je de schijf met Windows bovenaan in de bootvolgorde?',a:'Zo zoekt de pc niet eerst op USB, dvd of het netwerk',d:['Zo krijg je meer RAM','Zo wordt de schijf groter','Zo start Windows Update sneller'],w:'Staat netwerk of USB eerst, dan wacht de pc daar eerst op. De opstartschijf eerst zetten spaart tijd.',h:'Waar zoekt de pc eerst?'},
+ {q:'Hoe kom je in de UEFI-instellingen?',a:'Bij het opstarten op F2 of Del drukken (of via Geavanceerd opstarten)',d:['Ctrl + Shift + Esc','Windows-toets + E','Via Taakbeheer → Details'],w:'Meestal F2, Del, F10 of Esc vlak na het aanzetten. In Windows: Instellingen → Systeem → Herstel → Geavanceerde opstart → UEFI-firmware-instellingen.',h:'Vlak na het aanzetten, nog vóór Windows.'},
+ {q:'Wat versnelt ook het opstarten?',a:'Hardware die je niet gebruikt uitschakelen of loskoppelen (bv. oude kaarten, USB-sticks)',d:['Meer bureaubladiconen','Het scherm feller zetten','Een tweede antivirus'],w:'Elk aangesloten toestel moet gecontroleerd worden. Wat je niet gebruikt, schakel je uit in de UEFI of haal je eruit.',h:'Minder te controleren = sneller.'},
+ {q:'Wat doe je vóór je iets verandert in de UEFI?',a:'Noteer (of fotografeer) de huidige instellingen',d:['Alle instellingen op "uit" zetten','De pc uittrekken','Niets, dat is altijd veilig'],w:'Een verkeerde instelling kan de pc laten weigeren op te starten. Met een foto zet je alles terug, of je kiest "Load defaults".',h:'Zorg dat je terug kan.'}];
+function genE8(){if(Math.random()<0.3)return {type:'order',prompt:'Zet de stappen van het opstarten in de juiste volgorde. Klik ze aan in volgorde.',items:BOOT,why:'Aan-knop → POST → opstartschijf zoeken → Windows laden → aanmelden → opstartprogramma\'s.',hint:'Eerst de hardware (firmware), dan Windows, dan jouw programma\'s.'};return fromFacts(F8);}
+
+/* ---------- E9: opslag ---------- */
+const F9=[
+ {q:'Welke schijf is het snelst?',a:'Een NVMe-SSD',d:['Een HDD','Een SSHD','Een usb-stick'],w:'Snelst → traagst: NVMe-SSD, SATA-SSD, SSHD, HDD.',h:'Geen bewegende delen en een snelle aansluiting.'},
+ {q:'Wat is een SSHD?',a:'Een HDD met een klein stuk snel flashgeheugen',d:['Een SSD met draaiende platen','Een externe usb-stick','Een soort RAM'],w:'Een SSHD (hybride schijf) zet veelgebruikte bestanden in het flashgeheugen. Sneller dan een HDD, trager dan een SSD.',h:'Hybride = gemengd.'},
+ {q:'Moet je een SSD defragmenteren?',a:'Nee: Windows stuurt TRIM via "Stations optimaliseren"',d:['Ja, elke dag','Ja, één keer per uur','Alleen als hij vol is'],w:'Defragmenteren helpt alleen een HDD. Bij een SSD doet Windows automatisch TRIM.',h:'Een SSD heeft geen leeskop die moet bewegen.'},
+ {q:'Wat doet "vrije schijfruimte wissen" (bv. cipher /w)?',a:'Verwijderde bestanden onherstelbaar maken: goed voor privacy, niet voor snelheid',d:['De pc veel sneller maken','Extra ruimte bijmaken','Virussen verwijderen'],w:'Het overschrijft de vrije ruimte. Handig voor je een pc weggeeft, maar het maakt de pc niet sneller.',h:'Wissen ≠ versnellen.'},
+ {q:'Welk Windows-hulpmiddel verwijdert tijdelijke en overbodige bestanden?',a:'Schijfopruiming (of Instellingen → Systeem → Opslag)',d:['Taakbeheer','Windows-beveiliging','Paint'],w:'Typ "Schijfopruiming" in het startmenu en klik ook op "Systeembestanden opschonen" voor oude updatebestanden.',h:'Opruimen.'},
+ {q:'CrystalDiskInfo toont bij je harde schijf "Let op". Wat doe je eerst?',a:'Meteen een back-up maken en de schijf (laten) vervangen',d:['Niets, de schijf werkt nog','De schijf defragmenteren','Een tweede antivirus installeren'],w:'SMART-waarschuwingen betekenen dat de schijf slijt en kan uitvallen. Eerst je bestanden veilig, dan vervangen, liefst door een SSD.',h:'Wat is het belangrijkste: de schijf of je bestanden?'},
+ {q:'Welk signaal wijst op een versleten harde schijf?',a:'Klikkende of schurende geluiden en bestanden die heel traag openen',d:['Een groen vinkje bij OneDrive','Een snelle opstart','Een volle prullenbak'],w:'Een HDD heeft bewegende delen die slijten. Bij klikgeluiden: back-up, SMART-status lezen, vervangen.',h:'Een HDD heeft draaiende platen.'},
+ {q:'Hoe controleer je een station op fouten in Windows?',a:'Verkenner → rechtsklik C: → Eigenschappen → Extra → Controleren',d:['Taakbeheer → Opstarten','Instellingen → Persoonlijke instellingen','Windows Update → Actieve uren'],w:'Dat is de foutcontrole. In de opdrachtprompt kan het ook met chkdsk.',h:'Eigenschappen van het station.'},
+ {q:'Moet je een HDD defragmenteren?',a:'Het helpt, maar Windows doet het automatisch via "Stations optimaliseren"',d:['Nee, nooit','Ja, elk uur zelf','Alleen als hij nieuw is'],w:'Defragmenteren helpt een HDD. Windows doet het standaard wekelijks. Een SSD defragmenteer je niet.',h:'Windows plant het zelf.'},
+ {q:'Hoeveel vrije ruimte houd je best minstens op station C:?',a:'Ongeveer 10 à 15 %',d:['0 %, een volle schijf is efficiënt','Precies 1 GB','90 %'],w:'Windows heeft vrije ruimte nodig voor updates, het wisselbestand en tijdelijke bestanden.',h:'Een beetje ademruimte.'}];
+function genE9(){const k=ri(0,2);
+ if(k===0){const tot=rnd([128,237,256,476,512,931]);const vrij=Math.round(tot*ri(3,30))/100;const pct=Math.round(vrij/tot*100);
+  return {type:'num',prompt:`Verkenner → Deze pc: station C: heeft ${nl(vrij.toFixed(1))} GB vrij van ${tot} GB. Hoeveel procent is nog vrij? (afgerond)`,answer:pct,tol:1,unit:'%',distr:[100-pct,pct+8,Math.max(1,pct-5),Math.round(vrij)].filter(x=>x>0&&x<=100&&x!==pct),why:`${nl(vrij.toFixed(1))} ÷ ${tot} × 100 = ${pct} %. ${pct<10?'Te vol: ruim op!':pct<15?'Krap: tijd om op te ruimen.':'Genoeg ruimte.'}`,hint:'Vrij ÷ totaal × 100.'};}
+ if(k===1){const pct=rnd([3,6,8,11,12,14,18,25,40]);const a=pct<10?'Te vol (minder dan 10 %)':pct<15?'Krap (10 – 15 %)':'Genoeg (15 % of meer)';
+  return mc(`Station C: heeft nog ${pct} % vrij. Hoe beoordeel je dat?`,a,['Te vol (minder dan 10 %)','Krap (10 – 15 %)','Genoeg (15 % of meer)'],`${pct} % → ${a.split(' (')[0].toLowerCase()}. Houd minstens 10 à 15 % vrij.`,'Grens: 10 % en 15 %.');}
+ return fromFacts(F9);}
+
+/* ---------- ES: synchronisatie ---------- */
+const ICONS=[['Blauw wolkje','Alleen online: neemt geen ruimte in op de pc'],['Wit rondje met groen vinkje','Lokaal beschikbaar: gedownload omdat je het opende'],['Groen rondje met wit vinkje','Altijd behouden op dit apparaat'],['Twee blauwe pijlen in een cirkel','Bezig met synchroniseren']];
+const FS=[
+ {q:'Waarom kan OneDrive of Google Drive je pc trager maken?',a:'Uploaden en downloaden gebruikt internet, schijf en processor',d:['Synchroniseren verkleint het RAM','Cloudopslag zet de processor uit','Het scherm moet vaker verversen'],w:'Vooral bij de eerste synchronisatie, duizenden foto\'s of grote video\'s, of als twee sync-apps tegelijk werken.',h:'Wat gebeurt er met elk gewijzigd bestand?'},
+ {q:'Je moet nu een online toets maken, maar OneDrive uploadt 4 000 foto\'s. Wat doe je?',a:'Synchronisatie onderbreken (2, 8 of 24 uur) via het OneDrive-wolkje',d:['OneDrive verwijderen','De foto\'s wissen','De pc uittrekken'],w:'OneDrive-wolkje in het systeemvak → tandwiel → Synchronisatie onderbreken. Daarna weer hervatten.',h:'Even pauzeren.'},
+ {q:'Is synchronisatie hetzelfde als een back-up?',a:'Nee: verwijder of beschadig je een bestand, dan gebeurt dat ook in de cloud',d:['Ja, altijd','Ja, maar enkel op laptops','Ja, als je OneDrive gebruikt'],w:'Synchronisatie maakt overal hetzelfde, ook fouten en door ransomware versleutelde bestanden. Een back-up is een aparte kopie.',h:'Wat gebeurt er als je iets wist?'},
+ {q:'Wat doet Bestanden op aanvraag?',a:'Bestanden staan in Verkenner, maar nemen pas ruimte in als je ze opent',d:['Alle bestanden worden altijd gedownload','Bestanden worden versleuteld','Bestanden worden naar een usb-stick gekopieerd'],w:'Zo bespaar je ruimte op je schijf. Rechtsklik → Ruimte vrijmaken zet bestanden terug naar alleen online.',h:'Op aanvraag = pas als je erom vraagt.'},
+ {q:'Hoe synchroniseer je een grote videomap niet naar deze pc?',a:'OneDrive → Instellingen → Account → Mappen kiezen en de map uitvinken',d:['De map hernoemen','De map in de prullenbak zetten','Windows Update uitschakelen'],w:'Mappen kiezen bepaalt welke mappen op deze pc gesynchroniseerd worden.',h:'Je kiest welke mappen.'},
+ {q:'Twee sync-apps (OneDrive en Dropbox) synchroniseren dezelfde map. Goed idee?',a:'Nee: ze werken elkaar tegen en doen dubbel werk',d:['Ja, dat is dubbel zo veilig','Ja, dat is sneller','Het maakt niets uit'],w:'Gebruik één sync-app per map. Wat je niet gebruikt, laat je niet meestarten (H2).',h:'Net zoals twee realtime antivirusprogramma\'s.'},
+ {q:'Welke Windows-functie kan ongebruikte OneDrive-bestanden automatisch alleen online zetten?',a:'Opslagsensor',d:['Broncontrole','Fast Boot','Windows Defender'],w:'Instellingen → Systeem → Opslag → Opslagsensor. Helpt ook als de schijf te vol is (H8).',h:'Het zit bij Opslag.'}];
+function genES(){if(Math.random()<0.35){const i=rnd(ICONS);return mc(`Bestanden op aanvraag: wat betekent "${i[0]}" in de kolom Status?`,i[1],ICONS.map(x=>x[1]),`${i[0]} = ${i[1].toLowerCase()}.`,'Wolk = online, vinkje = op de pc, pijlen = bezig.',3);}return fromFacts(FS);}
+
+/* ---------- E10: praktijk ---------- */
+const SCEN=[
+ ['Elke ochtend is de pc traag. In het systeemvak draaien OneDrive én Dropbox met blauwe pijltjes.','De synchronisatie beperken of onderbreken; één sync-app per map'],
+ ['Een oude pc maakt klikgeluiden en CrystalDiskInfo toont "Slecht".','Meteen een back-up maken en de schijf vervangen door een SSD'],
+ ['De pc liep deze week vaak vast, maar nu lijkt alles normaal.','Betrouwbaarheidsgeschiedenis bekijken: welk programma crashte op welke dag?'],
+ ['Mevrouw Peeters: "Mijn laptop doet er 3 minuten over voor ik kan werken. Daarna gaat het." Taakbeheer → Opstarten toont 14 programma\'s met invloed "Hoog".','Overbodige opstartprogramma\'s uitschakelen in Taakbeheer'],
+ ['Jonas: "Sinds ik gratis software installeerde heb ik een nieuwe werkbalk, andere zoekmachine en veel reclame."','Een volledige scan doen en daarna een tweede scanner als controle'],
+ ['Een pc uit 2014 met een HDD: Taakbeheer toont Schijf 100 %, CPU 20 %, Geheugen 50 %.','De HDD vervangen door een SSD'],
+ ['Sara heeft 8 GB RAM. Met Chrome (35 tabbladen), Teams en Photoshop open staat Geheugen op 97 %.','Onnodige programma\'s en tabbladen sluiten (en eventueel RAM bijsteken)'],
+ ['Station C: van 128 GB heeft nog 3 GB vrij. Windows-updates mislukken.','Schijfopruiming en overbodige bestanden en programma\'s verwijderen'],
+ ['Twee antivirusprogramma\'s staan allebei op realtime en de pc reageert traag.','Eén antivirus verwijderen of op on-demand zetten'],
+ ['De updategeschiedenis toont drie keer dezelfde mislukte update.','Opnieuw naar updates zoeken en de mislukte update laten herinstalleren'],
+ ['Laatste BIOS-tijd: 38 seconden. De pc zoekt eerst op het netwerk naar een besturingssysteem.','In de UEFI de Windows-schijf bovenaan de bootvolgorde zetten en Fast Boot aanzetten'],
+ ['Een nieuw spel start, maar hapert. Het spel vraagt aanbevolen 16 GB RAM; de pc heeft er 8.','De systeemvereisten vergelijken: de pc haalt de aanbevolen vereisten niet'],
+ ['Een pc met Windows 10 toont: "Deze versie van Windows wordt niet meer ondersteund."','Overstappen naar Windows 11 (als de pc het toelaat) of een nieuwe pc']];
+const SCENA=SCEN.map(s=>s[1]);
+function genE10(){const s=rnd(SCEN);return mc(`${s[0]} Wat is de beste eerste stap?`,s[1],SCENA,`Symptoom → oorzaak → oplossing. Hier: ${s[1].toLowerCase()}.`,'Wat is het symptoom? Welk onderdeel of welke instelling hoort daarbij?',3);}
+
+/* ---------- oefeningen ---------- */
+const EX=[
+ {id:'E1',ch:'H1',title:'Software of hardware?',gen:genE1,
+  uitleg:'Een trage pc heeft bijna altijd een van acht oorzaken. Sommige zijn puur software (instellingen, programma\'s, updates, malware), andere zijn een mix: de software vraagt meer dan de hardware aankan. Meten is weten: open Taakbeheer met Ctrl + Shift + Esc.',
+  plan:['Lees het symptoom: wanneer is de pc traag?','Kies de oorzaak die daarbij past.','Bepaal: software, hardware of allebei?'],
+  vb:['Vraag: "De pc is traag vlak na het aanmelden, daarna gaat het beter."','Stap 1 · Traag op één moment: net na het aanmelden.','Stap 2 · Op dat moment starten de opstartprogramma\'s. Oorzaak: te veel opstartprogramma\'s.','Stap 3 · Dat los je op met een instelling in Taakbeheer: een softwareprobleem.']},
+ {id:'ET',ch:'H1',title:'Welke analysetool?',gen:genET,
+  uitleg:'Taakbeheer geeft het overzicht. Voor meer detail heeft Windows andere tools: Broncontrole (resmon) per proces, Betrouwbaarheidsgeschiedenis voor crashes en mislukte updates per dag, Prestatiemeter (perfmon /report) voor een systeemdiagnose, Systeeminformatie (msinfo32) voor hardware en BIOS. CrystalDiskInfo leest de gezondheid van de schijf.',
+  plan:['Wat wil je weten: nu, per proces, per dag, of over de hardware?','Kies de tool die dat toont.','Eerst het overzicht (Taakbeheer), dan het detail.'],
+  vb:['Vraag: "De pc liep deze week drie keer vast. Welke tool?"','Stap 1 · Je wil weten wat er de voorbije dagen gebeurde.','Stap 2 · Crashes per dag: Betrouwbaarheidsgeschiedenis.','Stap 3 · Klik op de dag met de rode X en lees welk programma het was.']},
+ {id:'E2',ch:'H2',title:'Opstartprogramma\'s en apps',gen:genE2,
+  uitleg:'Opstartprogramma\'s starten vanzelf mee wanneer je je aanmeldt. Te veel ervan maken het opstarten traag en nemen geheugen in. In Taakbeheer → Opstarten (Windows 11: Opstart-apps) zie je per programma de invloed op het opstarten. Uitschakelen is niet verwijderen. Ook achtergrond-apps, programma\'s in het systeemvak en browserextensies draaien ongemerkt mee.',
+  plan:['Open Taakbeheer (Ctrl + Shift + Esc) → Opstarten.','Sorteer op "Invloed op opstarten": begin bij Hoog.','Laat beveiliging en stuurprogramma\'s (geluid, touchpad) aan; schakel de rest uit.'],
+  vb:['Lijst: Spotify (Hoog), Windows Security (Laag), Steam (Gemiddeld).','Stap 1 · Windows Security blijft aan: beveiliging.','Stap 2 · Spotify heeft de grootste invloed: uitschakelen.','Stap 3 · Steam gebruik je alleen om te gamen: ook uitschakelen. Je start het zelf wanneer je wil spelen.']},
+ {id:'E3',ch:'H3',title:'Taakbeheer lezen',gen:genE3,
+  uitleg:'Taakbeheer → Processen toont per programma hoeveel het de processor (CPU), het werkgeheugen, de schijf en de grafische kaart (GPU) belast. Bovenaan elke kolom staat het totaal. Een kolom op (bijna) 100 % is de bottleneck.',
+  plan:['Kijk eerst naar de totalen bovenaan: welke kolom zit bijna op 100 %?','Zoek in die kolom het programma met het hoogste getal (donkerste kleur).','Beslis: programma sluiten, of is het onderdeel te zwak?'],
+  vb:['Totalen: CPU 18 %, Geheugen 96 %, Schijf 4 %.','Stap 1 · Geheugen zit bijna op 100 %: het RAM is de bottleneck.','Stap 2 · Chrome gebruikt 3 200 MB: het meeste.','Stap 3 · Sluit tabbladen; blijft het RAM vol bij gewoon werk, dan is extra RAM de oplossing.']},
+ {id:'E4',ch:'H3',title:'Systeemvereisten vergelijken',gen:genE4,
+  uitleg:'Elk programma heeft systeemvereisten: wat het minstens nodig heeft (minimum) en wat het nodig heeft om vlot te werken (aanbevolen). Vergelijk ze vóór je installeert met je eigen pc (Instellingen → Systeem → Info).',
+  plan:['Zet de vereisten en je pc naast elkaar.','Vergelijk rij per rij: processor, RAM, opslag, grafische kaart, besturingssysteem.','Eén rij te laag? Dan zal het programma niet of traag werken.'],
+  vb:['Vereist: 8 GB RAM, 50 GB vrij. Jouw pc: 4 GB RAM, 120 GB vrij.','Stap 1 · RAM: 4 GB tegenover 8 GB.','Stap 2 · 4 is kleiner dan 8: voldoet niet.','Stap 3 · Opslag: 120 is meer dan 50: in orde. Antwoord: het RAM voldoet niet.']},
+ {id:'E5',ch:'H4',title:'Een verouderde pc',gen:genE5,
+  uitleg:'Een oude pc is traag door verouderde onderdelen (processor, RAM, HDD, grafische kaart) of een verouderd besturingssysteem. Soms helpt één upgrade (SSD, extra RAM), soms is een nieuwe pc verstandiger. Windows 10 krijgt sinds 14 oktober 2025 geen gewone gratis updates meer.',
+  plan:['Lees de specificaties: jaar, processor, RAM, schijf, Windows-versie.','Zoek het zwakste onderdeel.','Kies de goedkoopste oplossing die dat probleem echt oplost.'],
+  vb:['Pc uit 2016 · 8 GB RAM · 1 TB HDD · Windows 11.','Stap 1 · RAM is genoeg, Windows is recent.','Stap 2 · Het zwakste onderdeel is de HDD.','Stap 3 · Advies: vervang de HDD door een SSD.']},
+ {id:'E6',ch:'H5',title:'Updates',gen:genE6,
+  uitleg:'Updates lossen fouten en beveiligingslekken op, maar kunnen de pc tijdelijk vertragen. Controleer via Instellingen → Windows Update, bekijk de updategeschiedenis, laat andere Microsoft-producten mee bijwerken en houd ook je andere programma\'s up-to-date met een software-updater.',
+  plan:['Windows zelf? → Instellingen → Windows Update.','Iets misgelopen? → Updategeschiedenis.','Office of andere programma\'s? → Geavanceerde opties of een software-updater.'],
+  vb:['Vraag: "Word wordt nooit bijgewerkt. Wat stel je in?"','Stap 1 · Word is een Microsoft-product, maar geen deel van Windows.','Stap 2 · Windows Update → Geavanceerde opties.','Stap 3 · Zet "Updates voor andere Microsoft-producten ontvangen" aan.']},
+ {id:'E7',ch:'H6',title:'Virussen en soorten malware',gen:genE7,
+  uitleg:'Malware is de verzamelnaam: virus, worm, trojaans paard, spyware, adware, ransomware, cryptominer en ongewenste apps (PUP). Ze draait ongemerkt op de achtergrond en maakt de pc traag. Gebruik één realtime antivirus (Microsoft Defender volstaat), houd hem up-to-date, scan regelmatig en gebruik af en toe een tweede scanner als controle.',
+  plan:['Eén realtime antivirus, nooit twee tegelijk.','Updaten en regelmatig scannen.','Af en toe een tweede on-demand scanner als controle.'],
+  vb:['Vraag: "Je hebt Avast én Norton allebei realtime aan. De pc is traag."','Stap 1 · Twee realtime antivirusprogramma\'s doen dubbel werk.','Stap 2 · Kies er één en verwijder de andere.','Stap 3 · Wil je een tweede mening? Gebruik af en toe een on-demand scanner.']},
+ {id:'E8',ch:'H7',title:'Opstarten en BIOS/UEFI',gen:genE8,
+  uitleg:'Bij het aanzetten controleert de firmware (BIOS/UEFI) de hardware: de POST. Daarna zoekt hij de opstartschijf volgens de bootvolgorde. Fast Boot verkort de POST, de juiste bootvolgorde en minder aangesloten hardware sparen tijd. De Laatste BIOS-tijd staat in Taakbeheer → Opstarten.',
+  plan:['Is het traag vóór het Windows-logo? Dan zit het in de firmware.','Kijk naar Laatste BIOS-tijd in Taakbeheer → Opstarten.','Oplossing: Fast Boot, bootvolgorde, ongebruikte hardware uit of los.'],
+  vb:['Vraag: "Laatste BIOS-tijd 30 s. Wat kan je doen?"','Stap 1 · 30 s is lang: enkele seconden is normaal.','Stap 2 · Ga naar de UEFI (F2/Del).','Stap 3 · Zet Fast Boot aan en de Windows-schijf bovenaan de bootvolgorde.']},
+ {id:'E9',ch:'H8',title:'Opslag: vol, traag of versleten?',gen:genE9,
+  uitleg:'Een HDD is veel trager dan een SSD en slijt: klikgeluiden of een SMART-waarschuwing in CrystalDiskInfo betekenen eerst een back-up en dan vervangen. Een bijna volle schijf maakt elke pc traag. Houd 10 à 15 % vrij met Schijfopruiming en door onnodige bestanden en programma\'s te verwijderen. Defragmenteren helpt alleen een HDD; vrije ruimte wissen is voor privacy, niet voor snelheid.',
+  plan:['Bereken: vrij ÷ totaal × 100.','Minder dan 10 % = te vol, 10 – 15 % = krap, 15 % of meer = genoeg.','Te vol? Opruimen. HDD? Vervangen door een SSD.'],
+  vb:['C: 20 GB vrij van 237 GB.','Stap 1 · 20 ÷ 237 = 0,084.','Stap 2 · × 100 = 8,4 % → afgerond 8 %.','Stap 3 · Minder dan 10 %: te vol. Start Schijfopruiming.']},
+ {id:'ES',ch:'H9',title:'Synchronisatie en cloudopslag',gen:genES,
+  uitleg:'OneDrive, Google Drive en Dropbox houden bestanden gelijk op pc en cloud. Dat kost internet, schijf en processor. Je kan de synchronisatie onderbreken, mappen uitsluiten en met Bestanden op aanvraag ruimte besparen. Synchronisatie is geen back-up.',
+  plan:['Is er iets aan het synchroniseren? (blauwe pijltjes in het systeemvak)','Nu even geen tijd? Onderbreken (2, 8 of 24 uur).','Blijvend: grote mappen uitsluiten, één sync-app per map, Bestanden op aanvraag aan.'],
+  vb:['Vraag: "Je moet een online toets maken, OneDrive uploadt 4 000 foto\'s."','Stap 1 · Synchroniseren gebruikt internet, schijf en processor.','Stap 2 · OneDrive-wolkje → tandwiel → Synchronisatie onderbreken → 2 uur.','Stap 3 · Na de toets hervat je de synchronisatie.']},
+ {id:'E10',ch:'P',title:'Waar zit het probleem?',gen:genE10,
+  uitleg:'In de praktijk krijg je een klacht, geen definitie. Je werkt als een dokter: symptoom → oorzaak → oplossing. Begin met de goedkoopste, veiligste stap.',
+  plan:['Wat is het symptoom en wanneer treedt het op?','Welke van de acht oorzaken past daarbij? (Taakbeheer helpt)','Kies de eerste stap die die oorzaak oplost.'],
+  vb:['Klacht: "Pop-ups en de ventilator draait voluit."','Stap 1 · Symptoom: dingen die je niet zelf deed, processor hoog.','Stap 2 · Oorzaak: waarschijnlijk malware.','Stap 3 · Eerste stap: volledige scan met je antivirus, daarna een tweede scanner als controle.']},
+ {id:'E11',ch:'mix',title:'Gemengde oefening',gen:()=>{const e=rnd(EX.filter(x=>x.id!=='E11'));const q=e.gen();q.from=e.title;return q;},
+  uitleg:'Hier komen alle soorten vragen door elkaar, zoals in de eindtoets.',plan:['Lees rustig: welk hoofdstuk is dit?','Gebruik het stappenplan van dat soort vraag.','Fout? Lees de feedback en probeer een nieuwe opgave.'],
+  vb:['Tip · Bovenaan elke opgave zie je uit welke oefening ze komt.','Tip · Twijfel je, open dan het tabblad Theorie in een tweede venster.','Tip · Een hint gebruiken mag; "Toon oplossing" telt niet als juist.']}];
+const REQ=EX.map(e=>e.id);
+const NEED=1;
+function okCount(id){return (S.prog[id]&&S.prog[id].ok)||0;}
+function allDone(){return REQ.every(id=>okCount(id)>=NEED);}
+function toetsOpen(){return S.unlocked||allDone();}
+/* ---------- theorie ---------- */
+const TJ={
+H1:[['Crashes per dag zie je in …','Betrouwbaarheidsgeschiedenis',['Systeeminformatie','Schijfopruiming']],['Te veel opstartprogramma\'s is een …','Softwareprobleem',['Hardwareprobleem','Probleem met het scherm']],['Snelste manier om Taakbeheer te openen:','Ctrl + Shift + Esc',['Ctrl + C','Windows-toets + L']]],
+H2:[['Je schakelt een opstartprogramma uit. Is het dan verwijderd?','Nee, het start alleen niet meer vanzelf',['Ja, het is weg']],['Welke laat je aan?','Windows Security notification icon',['Spotify','Steam']]],
+H3:[['Geheugen staat op 97 %. Wat doe je eerst?','Programma\'s en tabbladen sluiten',['Meteen een nieuwe pc kopen','De BIOS updaten']],['Aanbevolen vereisten betekenen …','Het programma werkt vlot',['Het programma start net']]],
+H4:[['Grootste winst voor een oude pc met HDD:','SSD',['Nieuwe muis','Meer bureaubladiconen']],['Windows 10 krijgt sinds … geen gewone gratis updates meer.','14 oktober 2025',['1 januari 2030','nooit']]],
+H5:[['Waar zie je mislukte updates?','Updategeschiedenis',['Actieve uren','Taakbeheer → Opstarten']],['Andere programma\'s bijwerken in één keer:','Software-updater (bv. winget)',['Schijfopruiming','Taakbeheer']]],
+H6:[['Hoeveel realtime antivirusprogramma\'s?','Eén',['Twee','Drie']],['De ingebouwde antivirus van Windows heet …','Microsoft Defender',['Windows Update','Verkenner']]],
+H7:[['POST staat voor …','Power-On Self-Test',['Post Office Startup Tool','Programma Op Start Tijd']],['De POST verkorten doe je met …','Fast Boot in de UEFI',['Een tweede antivirus','Schijfopruiming']]],
+H8:[['Een SSD defragmenteren?','Nee',['Ja, wekelijks']],['"Vrije ruimte wissen" maakt de pc …','Niet sneller (het is voor privacy)',['Veel sneller','Groter']],['CrystalDiskInfo toont "Let op". Eerst …','Een back-up maken',['De schijf defragmenteren','Niets doen']]],
+H9:[['Synchronisatie is een back-up.','Niet waar',['Waar']],['Blauw wolkje in Verkenner betekent …','Alleen online',['Altijd behouden','Bezig met synchroniseren']]]};
+const tmStart=tmBox('Opstarten',['Naam','Uitgever','Status','Invloed op opstarten'],[['Microsoft Teams','Microsoft','Ingeschakeld',{t:'Hoog',c:'h3'}],['Spotify','Spotify AB','Ingeschakeld',{t:'Gemiddeld',c:'h2'}],['Windows Security notification icon','Microsoft Corporation','Ingeschakeld','Laag'],['Steam Client Bootstrapper','Valve Corporation','Uitgeschakeld','Geen']],'Laatste BIOS-tijd: 6,2 seconden (rechtsboven)');
+const tmProc=tmBox('Processen',['Naam','23 %<br>CPU','91 %<br>Geheugen','6 %<br>Schijf','4 %<br>GPU'],[['Google Chrome (34)',{t:'9 %',c:''},{t:'3 214 MB',c:'h3'},'0,4 MB/s','1 %'],['Microsoft Teams',{t:'6 %',c:''},{t:'1 105 MB',c:'h2'},'0,1 MB/s','2 %'],['Microsoft Word','1 %',{t:'312 MB',c:'h1'},'0 MB/s','0 %'],['Antimalware Service Executable','4 %','198 MB','2,1 MB/s','0 %']],'Lees zo: eerst de totalen bovenaan, dan het programma met de donkerste kleur in die kolom.');
+const TH={
+H1:`<p>"Mijn pc is traag" is een klacht, geen diagnose. Als technicus werk je zoals een dokter: <b>symptoom → oorzaak → oplossing</b>. Er zijn negen veelvoorkomende oorzaken.</p>
+<div class="box vgl"><h4>Vergelijk: een keuken die vastloopt</h4><p>Te veel koks die tegelijk binnenkomen (opstartprogramma's), een recept dat te moeilijk is voor de keuken (zware programma's), alle pannen tegelijk op het vuur (te veel tegelijk), een keuken uit 1990 (verouderde pc), een leverancier die net nu levert (updates), een indringer die mee-eet (virus), een portier die aan de deur iedereen grondig controleert (opstartcontroles) en een overvolle voorraadkast (schijf vol) en een koerier die non-stop pakjes heen en weer brengt (synchronisatie).</p></div>
+<div class="tbl"><table><tr><th>Oorzaak</th><th>Soort probleem</th><th>Typisch symptoom</th></tr>
+<tr><td>Té veel programma's starten mee op</td><td><span class="tag sw">software</span></td><td>Traag vlak na het aanmelden</td></tr>
+<tr><td>Té zware programma's</td><td><span class="tag sw">software</span><span class="tag hw">hardware</span></td><td>Eén programma hapert</td></tr>
+<tr><td>Te veel programma's tegelijk</td><td><span class="tag sw">software</span><span class="tag hw">hardware</span></td><td>Alles traag als veel open staat</td></tr>
+<tr><td>Verouderde pc (processor, RAM, grafische kaart, OS)</td><td><span class="tag sw">software</span><span class="tag hw">hardware</span></td><td>Altijd traag, ook bij weinig werk</td></tr>
+<tr><td>Updates</td><td><span class="tag sw">software</span></td><td>Tijdelijk traag, vraag om herstart</td></tr>
+<tr><td>Virussen en malware</td><td><span class="tag sw">software</span></td><td>Pop-ups, processor hoog zonder reden</td></tr>
+<tr><td>Té veel controles bij het opstarten</td><td><span class="tag sw">software</span><span class="tag hw">hardware</span></td><td>Lang wachten vóór het Windows-logo</td></tr>
+<tr><td>Te weinig ruimte of een trage schijf</td><td><span class="tag sw">software</span><span class="tag hw">hardware</span></td><td>Rode balk bij C:, alles laadt traag, klikgeluiden</td></tr>
+<tr><td>Synchronisatie (OneDrive, Google Drive …)</td><td><span class="tag sw">software</span></td><td>Blauwe pijltjes in het systeemvak, internet traag</td></tr></table></div>
+<h3>Meten is weten: Taakbeheer</h3>
+<p>Open Taakbeheer met <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>. (Met <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Delete</kbd> kom je eerst op een blauw scherm en kies je daarna Taakbeheer.) De tabbladen <b>Processen</b>, <b>Prestaties</b> en <b>Opstarten</b> gebruik je in bijna elk hoofdstuk.</p>
+<h3>Prestatie-analyse: meer tools</h3>
+<p>Taakbeheer geeft het overzicht. Voor het detail heeft Windows nog andere tools. Werk altijd van <b>overzicht → detail → oplossing</b>.</p>
+<div class="tbl"><table><tr><th>Tool</th><th>Openen</th><th>Wat zie je?</th></tr>
+<tr><td>Taakbeheer</td><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd></td><td>Wat de pc nu belast</td></tr>
+<tr><td>Broncontrole</td><td>startmenu: <code>resmon</code></td><td>Per proces: processor, geheugen, schijf en netwerk in detail</td></tr>
+<tr><td>Betrouwbaarheidsgeschiedenis</td><td>startmenu: <i>betrouwbaarheid</i></td><td>Per dag: crashes en mislukte updates (rode kruisjes)</td></tr>
+<tr><td>Prestatiemeter</td><td><code>perfmon /report</code> (als beheerder)</td><td>Systeemdiagnoserapport na 60 seconden</td></tr>
+<tr><td>Systeeminformatie</td><td>startmenu: <code>msinfo32</code></td><td>Hardware, BIOS-versie, Windows-versie</td></tr>
+<tr><td>CrystalDiskInfo</td><td>gratis programma</td><td>Gezondheid van de schijf (SMART), zie H8</td></tr>
+<tr><td>Taakbeheer van de browser</td><td><kbd>Shift</kbd> + <kbd>Esc</kbd> in Chrome of Edge</td><td>Geheugen per tabblad en per extensie, zie H2</td></tr></table></div>
+<div class="box onthoud"><h4>Let op</h4><p>Traag <b>internet</b> is niet hetzelfde als een trage pc. Laden alleen websites traag en werkt de rest vlot? Dan zit het probleem bij je wifi of internetverbinding.</p></div>`,
+H2:`<p>Veel programma's zetten zichzelf in de lijst van <b>opstartprogramma's</b>: ze starten vanzelf wanneer je je aanmeldt. Hoe meer er zijn, hoe langer het duurt voor je kan werken en hoe meer geheugen ze blijven innemen.</p>
+<h3>Uitschakelen in Taakbeheer</h3>
+<ol><li>Open Taakbeheer: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd>.</li><li>Kies het tabblad <span class="path">Opstarten</span> (Windows 11: <span class="path">Opstart-apps</span>).</li><li>Klik op de kolom <b>Invloed op opstarten</b> om te sorteren.</li><li>Rechtsklik op een programma → <b>Uitschakelen</b>.</li></ol>
+${tmStart}
+<p>In Windows 11 kan het ook via <span class="path">Instellingen → Apps → Opstarten</span>.</p>
+<div class="box vgl"><h4>Wat laat je aan?</h4><p>Beveiliging (antivirus) en programma's die bij hardware horen: geluid (Realtek), touchpad, grafische kaart. Wat schakel je uit? Programma's die je zelf start wanneer je ze nodig hebt: Spotify, Steam, Discord, Teams (als je het niet de hele dag gebruikt) …</p></div>
+<h3>Verwijderen en voorkomen</h3>
+<ul><li><b>Uitschakelen ≠ verwijderen.</b> Gebruik je een programma nooit? Verwijder het via <span class="path">Instellingen → Apps → Geïnstalleerde apps</span>.</li><li>Nog beter: installeer niets wat je niet nodig hebt. Kies bij gratis software <b>Aangepaste installatie</b> en vink werkbalken en extra programma's (<b>bloatware</b>) uit.</li></ul>
+<h3>Apps op de achtergrond</h3>
+<ul><li><b>Achtergrond-apps</b> blijven draaien als ze dicht zijn: meldingen, synchroniseren, updates. Beperk ze per app: <span class="path">Instellingen → Apps → Geïnstalleerde apps → ⋯ → Geavanceerde opties → Machtigingen voor achtergrond-apps: Nooit</span> (niet elke app heeft die optie).</li>
+<li>Programma's in het <b>systeemvak</b> naast de klok (Steam, Spotify, Discord) draaien door als het venster dicht is: rechtsklik → <b>Afsluiten</b>.</li></ul>
+<h3>Browserextensies</h3>
+<ul><li>Elke extensie gebruikt geheugen en processor, soms op elk tabblad.</li><li>Druk <kbd>Shift</kbd> + <kbd>Esc</kbd> in Chrome of Edge: het <b>taakbeheer van de browser</b> toont per tabblad en per extensie wat het gebruikt.</li><li>Schakel ongebruikte extensies uit of verwijder ze via <code>chrome://extensions</code> of <code>edge://extensions</code>.</li><li>Zet in de browserinstellingen "apps op de achtergrond blijven uitvoeren als de browser gesloten is" uit.</li></ul>
+<div class="box onthoud"><h4>Onthoud</h4><p>Ctrl + Shift + Esc → Opstarten → sorteer op invloed → rechtsklik → Uitschakelen. Beveiliging en drivers laat je aan. Shift + Esc in de browser toont zware extensies.</p></div>`,
+H3:`<h3>Té zware programma's</h3>
+<p>Elk programma heeft <b>systeemvereisten</b>. <b>Minimum</b>: het programma start. <b>Aanbevolen</b>: het werkt vlot. Vergelijk ze <b>vóór</b> je installeert met je eigen pc (<span class="path">Instellingen → Systeem → Info</span>). Op Android-toestellen doet de Play Store dit meestal automatisch: een app die niet past, vind je er vaak niet eens.</p>
+<div class="tbl"><table><tr><th>Onderdeel</th><th>Minimum (voorbeeldspel)</th><th>Aanbevolen</th></tr><tr><td>Processor</td><td>4 kernen</td><td>6 kernen</td></tr><tr><td>RAM</td><td>8 GB</td><td>16 GB</td></tr><tr><td>Grafische kaart</td><td>4 GB videogeheugen</td><td>8 GB videogeheugen</td></tr><tr><td>Opslag</td><td>50 GB vrij, SSD aanbevolen</td><td>50 GB vrij op SSD</td></tr><tr><td>Besturingssysteem</td><td>Windows 10 64-bit</td><td>Windows 11</td></tr></table></div>
+<h3>Te veel programma's tegelijk</h3>
+<p>Alles wat open staat, gebruikt werkgeheugen (RAM) en processortijd. Is het RAM vol, dan gebruikt Windows een stuk van de schijf als extra geheugen: het <b>wisselbestand</b>. Dat is veel trager, en dan hapert alles.</p>
+${tmProc}
+<ol><li>Controleer in de taakbalk of in Taakbeheer → <span class="path">Processen</span> wat er allemaal open staat.</li><li>Kijk bovenaan: welke kolom zit bijna op 100 %? Dat is de <b>bottleneck</b>.</li><li>Sluit onnodige programma's en tabbladen. Reageert iets niet meer: rechtsklik → <b>Taak beëindigen</b> (niet-opgeslagen werk is dan weg).</li><li>Blijft het RAM of de processor vol bij gewoon werk? Dan is de hardware te zwak (hoofdstuk H4).</li></ol>
+<div class="box onthoud"><h4>Onthoud</h4><p>Eerst totalen bovenaan, dan het programma met de donkerste kleur. RAM vol → wisselbestand → traag.</p></div>`,
+H4:`<p>Ook een pc die nooit iets mankeerde, wordt "trager": nieuwe programma's en websites vragen meer, en het besturingssysteem krijgt op een dag geen updates meer.</p>
+<h3>Controleer in Taakbeheer → Prestaties</h3>
+<ul><li><b>CPU</b>: zit de processor bij gewoon werk (surfen, Word) vaak boven 90 %?</li><li><b>Geheugen</b>: is het RAM bij gewoon werk bijna vol?</li><li><b>Schijf 0</b>: staat er HDD of SSD? Een HDD die vaak 100 % haalt, is de rem.</li><li><b>GPU</b>: haalt de grafische kaart 100 % bij je spel of videobewerking?</li></ul>
+<h3>Het besturingssysteem (OS)</h3>
+<p>Kijk in <span class="path">Instellingen → Systeem → Info</span> welke Windows-versie je hebt. <b>Windows 10</b> krijgt sinds <b>14 oktober 2025</b> geen gewone gratis ondersteuning meer. Windows 11 vraagt onder meer een recente 64-bit processor, 4 GB RAM, 64 GB opslag, UEFI met Secure Boot en <b>TPM 2.0</b>. Controleer ook of je software met je Windows-versie samenwerkt.</p>
+<div class="tbl"><table><tr><th>Probleem</th><th>Beste oplossing</th></tr><tr><td>HDD</td><td>Vervangen door een SSD (grootste winst per euro)</td></tr><tr><td>4 GB RAM, altijd vol</td><td>RAM bijsteken (8 of 16 GB)</td></tr><tr><td>GPU op 100 % in spellen</td><td>Lagere instellingen of betere grafische kaart</td></tr><tr><td>Windows 10, hardware goed</td><td>Overstappen naar Windows 11</td></tr><tr><td>Alles oud, processor 100 % bij YouTube</td><td>Nieuwe pc overwegen</td></tr></table></div>
+<div class="box onthoud"><h4>Onthoud</h4><p>Zoek het zwakste onderdeel en kies de goedkoopste oplossing die dat echt oplost.</p></div>`,
+H5:`<p>Updates dichten beveiligingslekken en lossen fouten op. Tijdens het downloaden en installeren werkt de pc op de achtergrond en kan hij tijdelijk trager zijn. Een mislukte update kan een pc ook blijvend vertragen.</p>
+<ol><li><span class="path">Instellingen → Windows Update → Naar updates zoeken</span>: zoek bewust naar updates voor het OS.</li><li><span class="path">Windows Update → Updategeschiedenis</span>: is er bij vorige updates iets misgegaan? Hier kan je ook een update verwijderen.</li><li><span class="path">Windows Update → Geavanceerde opties</span> → zet <b>Updates voor andere Microsoft-producten ontvangen</b> aan, zodat Office mee bijgewerkt wordt.</li><li>Stel <b>actieve uren</b> in: dan start Windows niet opnieuw op midden in je werk.</li><li>Werk ook je andere programma's bij met een <b>software-updater</b>, bv. <b>winget</b> (zit in Windows: typ <code>winget upgrade --all</code> in Terminal) of Patch My PC.</li></ol>
+<div class="box vgl"><h4>Stuurprogramma's (drivers)</h4><p>Drivers laten Windows met hardware praten. Een verouderde driver van bv. de grafische kaart kan de pc trager of onstabiel maken. Je krijgt ze via Windows Update of de website van de fabrikant.</p></div>
+<div class="box onthoud"><h4>Onthoud</h4><p>Updates niet uitschakelen, wel slim plannen. Zoeken → geschiedenis → andere Microsoft-producten → andere software.</p></div>`,
+H6:`<p><b>Malware</b> (virussen, spyware, adware, cryptominers …) draait ongemerkt op de achtergrond en gebruikt processor, geheugen en internet. Signalen: pop-ups, een andere startpagina, onbekende programma's, een ventilator die voluit draait zonder reden.</p>
+<div class="tbl"><table><tr><th>Regel</th><th>Waarom</th></tr>
+<tr><td>Installeer slechts één antivirus, of zorg dat er maar één <b>realtime</b> werkt</td><td>Twee realtime scanners controleren elk bestand dubbel en zitten elkaar in de weg: de pc wordt traag.</td></tr>
+<tr><td>Gebruik af en toe een tweede scanner als controle</td><td>Een <b>on-demand scanner</b> (bv. Malwarebytes Free, Microsoft Safety Scanner) start je zelf en draait niet continu.</td></tr>
+<tr><td>Updaten en regelmatig scannen</td><td>Nieuwe <b>virusdefinities</b> herkennen nieuwe malware. Snelle scan geregeld, volledige scan af en toe.</td></tr>
+<tr><td>Uitschakelen alleen als uitzondering</td><td>Loopt een installatie van betrouwbare software vast? Schakel de antivirus kort uit, liefst zonder internetverbinding, en zet hem meteen weer aan.</td></tr></table></div>
+<p>In Windows zit <b>Microsoft Defender</b>: <span class="path">Windows-beveiliging → Virus- en bedreigingsbeveiliging</span>. Daar kies je Snelle scan, Volledige scan of Microsoft Defender Offline-scan (na een herstart, voor hardnekkige malware). Installeer je een andere antivirus, dan gaat Defender vanzelf opzij.</p>
+<h3>Soorten malware</h3>
+<div class="tbl"><table><tr><th>Soort</th><th>Wat doet het?</th><th>Maakt traag?</th></tr>
+<tr><td>Virus</td><td>Hecht zich aan bestanden, verspreidt zich als je ze opent</td><td>soms</td></tr>
+<tr><td>Worm</td><td>Verspreidt zichzelf over het netwerk</td><td>netwerk traag</td></tr>
+<tr><td>Trojaans paard</td><td>Vermomd als nuttig programma</td><td>soms</td></tr>
+<tr><td>Spyware</td><td>Bespioneert je, stuurt gegevens door</td><td>ja</td></tr>
+<tr><td>Adware</td><td>Pop-ups en reclame</td><td>ja</td></tr>
+<tr><td>Ransomware</td><td>Versleutelt je bestanden, vraagt losgeld</td><td>bestanden weg</td></tr>
+<tr><td>Cryptominer</td><td>Gebruikt je processor voor cryptomunten</td><td><b>CPU 100 %</b></td></tr>
+<tr><td>Ongewenste app (PUP)</td><td>Werkbalken, "pc-optimizers" bij gratis software</td><td>ja</td></tr></table></div>
+<p>Zet in <span class="path">Windows-beveiliging → App- en browserbeheer → Bescherming op basis van reputatie</span> de optie <b>Potentieel ongewenste apps blokkeren</b> aan.</p>
+<div class="box onthoud"><h4>Onthoud</h4><p>Eén bewaker aan de deur (realtime), af en toe een inspecteur (on-demand), en altijd de nieuwste opsporingsberichten (updates).</p></div>`,
+H7:`<p>Bij het aanzetten start eerst de <b>firmware</b> op het moederbord: het <b>BIOS</b> of de moderne opvolger <b>UEFI</b>. Die doet de <b>POST</b> (Power-On Self-Test): een controle van processor, geheugen, schijven en aangesloten toestellen. Daarna zoekt hij de opstartschijf volgens de <b>bootvolgorde</b>.</p>
+<ol><li>Aan-knop</li><li>POST door de firmware</li><li>Opstartschijf zoeken (bootvolgorde)</li><li>Windows laden</li><li>Aanmelden</li><li>Opstartprogramma's (H2)</li></ol>
+<p>Hoe lang de firmware nodig had, lees je in <span class="path">Taakbeheer → Opstarten → Laatste BIOS-tijd</span>. Enkele seconden is normaal.</p>
+<h3>Sneller opstarten via de UEFI</h3>
+<ul><li>In de UEFI kom je met <kbd>F2</kbd> of <kbd>Del</kbd> vlak na het aanzetten, of via <span class="path">Instellingen → Systeem → Herstel → Geavanceerde opstart → UEFI-firmware-instellingen</span>.</li><li>Zet <b>Fast Boot</b> aan: de POST slaat tragere controles over. De POST helemaal uitschakelen kan niet.</li><li>Zet de schijf met Windows <b>bovenaan de bootvolgorde</b>, zodat de pc niet eerst USB of het netwerk afzoekt.</li><li>Schakel hardware die je niet gebruikt uit in de UEFI, of haal ze eruit (oude kaarten, usb-sticks, ongebruikte schijven).</li></ul>
+<div class="box onthoud"><h4>Let op</h4><p>Neem een foto van de instellingen vóór je iets wijzigt. Gaat het mis, dan zet je alles terug of kies je "Load defaults".</p></div>`,
+H8:`<h3>Te trage schijf</h3>
+<div class="tbl"><table><tr><th>Soort</th><th>Werking</th><th>Snelheid</th></tr><tr><td>HDD</td><td>Draaiende platen met een leeskop</td><td>Traag</td></tr><tr><td>SSHD</td><td>HDD met een klein stuk flashgeheugen</td><td>Iets sneller</td></tr><tr><td>SATA-SSD</td><td>Flashgeheugen, geen bewegende delen</td><td>Snel</td></tr><tr><td>NVMe-SSD (M.2)</td><td>Flashgeheugen met snelle aansluiting</td><td>Zeer snel</td></tr></table></div>
+<p>Een pc met een HDD vervangen door een SSD is vaak de grootste verbetering die je kan doen. Of het een HDD of SSD is, zie je in <span class="path">Taakbeheer → Prestaties → Schijf 0</span>.</p>
+<h3>Te weinig ruimte</h3>
+<p>Windows heeft vrije ruimte nodig voor updates, tijdelijke bestanden en het wisselbestand. Houd op station C: minstens <b>10 à 15 %</b> vrij. Bereken: <b>vrij ÷ totaal × 100</b>.</p>
+<ul><li><b>Schijfopruiming</b>: typ het in het startmenu, kies ook "Systeembestanden opschonen".</li><li><span class="path">Instellingen → Systeem → Opslag</span>: zie wat ruimte inneemt en ruim tijdelijke bestanden op.</li><li>Verwijder programma's die je niet gebruikt en grote bestanden (video's, downloads) die je niet meer nodig hebt.</li></ul>
+<div class="box vgl"><h4>Twee misverstanden</h4><p><b>Defragmenteren</b> helpt alleen een HDD. Bij een SSD stuurt Windows automatisch <b>TRIM</b> via "Stations optimaliseren"; zelf defragmenteren is niet nodig.<br><b>Vrije schijfruimte wissen</b> (bv. <code>cipher /w</code>) overschrijft de vrije ruimte zodat verwijderde bestanden niet terug te halen zijn. Goed voor privacy (bv. vóór je een pc weggeeft), maar het maakt de pc niet sneller.</p></div>
+<h3>Is de schijf nog gezond?</h3>
+<p>Een HDD slijt: de platen draaien en de leeskop beweegt. Ook een SSD heeft een beperkte levensduur. Signalen: <b>klikkende of schurende geluiden</b>, bestanden die heel traag openen, foutmeldingen bij kopiëren, vastlopers.</p>
+<ul><li>Elke schijf houdt een gezondheidsrapport bij: <b>SMART</b>. Het gratis programma <b>CrystalDiskInfo</b> leest dat: <b>Goed</b>, <b>Let op</b> of <b>Slecht</b>.</li>
+<li><b>Foutcontrole</b>: <span class="path">Verkenner → rechtsklik C: → Eigenschappen → Extra → Controleren</span> (of <code>chkdsk</code>).</li>
+<li>Let op of Slecht? <b>Eerst een back-up</b>, dan de schijf vervangen, liefst door een SSD.</li>
+<li>Een HDD defragmenteren helpt wél; Windows doet het wekelijks zelf via "Stations optimaliseren".</li></ul>
+<div class="box onthoud"><h4>Onthoud</h4><p>HDD → SSD. Minstens 10 à 15 % vrij. Defragmenteren alleen bij een HDD. Klikgeluiden of "Let op" = eerst back-up.</p></div>`,
+H9:`<p><b>OneDrive</b>, <b>Google Drive</b>, <b>Dropbox</b> en <b>iCloud</b> synchroniseren: ze houden dezelfde bestanden gelijk op je pc en in de cloud. Elke wijziging wordt geüpload of gedownload. Dat kost <b>internet, schijf en processor</b>.</p>
+<div class="box vgl"><h4>Vergelijk: een koerier</h4><p>Een koerier brengt elk pakje dat je wijzigt naar het depot (de cloud) en haalt nieuwe pakjes op. Bij één pakje merk je niets. Bij 4 000 foto's staat de gang vol dozen.</p></div>
+<h3>Wanneer maakt synchronisatie je pc traag?</h3>
+<ul><li>de eerste synchronisatie, of na het kopiëren van duizenden foto's of grote video's;</li><li>twee sync-apps tegelijk, of dezelfde map in twee apps;</li><li>een volle schijf, omdat alles ook lokaal gedownload wordt.</li></ul>
+<h3>Wat kan je doen?</h3>
+<ol><li><b>Onderbreken</b>: OneDrive-wolkje in het systeemvak → tandwiel → <span class="path">Synchronisatie onderbreken</span> → 2, 8 of 24 uur.</li>
+<li><b>Mappen kiezen</b>: <span class="path">OneDrive → Instellingen → Account → Mappen kiezen</span>; grote mappen niet naar deze pc.</li>
+<li><b>Bestanden op aanvraag</b> aan (standaard aan): bestanden nemen pas ruimte in als je ze opent. Rechtsklik → <b>Ruimte vrijmaken</b> zet ze terug naar alleen online. <b>Opslagsensor</b> (<span class="path">Instellingen → Systeem → Opslag</span>) kan dat automatisch.</li>
+<li>Eén sync-app per map, en wat je niet gebruikt laat je niet meestarten (H2).</li></ol>
+<div class="tbl"><table><tr><th>Icoontje in Verkenner (kolom Status)</th><th>Betekenis</th></tr>
+<tr><td>Blauw wolkje</td><td>Alleen online, neemt geen ruimte in</td></tr>
+<tr><td>Wit rondje met groen vinkje</td><td>Lokaal beschikbaar: geopend en gedownload</td></tr>
+<tr><td>Groen rondje met wit vinkje</td><td>Altijd behouden op dit apparaat</td></tr>
+<tr><td>Twee blauwe pijlen in een cirkel</td><td>Bezig met synchroniseren</td></tr></table></div>
+<div class="box onthoud"><h4>Onthoud</h4><p>Synchronisatie is <b>geen back-up</b>: verwijder je een bestand, dan verdwijnt het overal. Ook een fout of door ransomware versleutelde bestanden worden mee gesynchroniseerd.</p></div>`};
+/* ---------- weergave ---------- */
+let TAB='theorie', CUR={ex:'E1',ch:'H1'};
+function setTab(t){if(!['theorie','oefenen','praktijk','toets'].includes(t))t='theorie';TAB=t;S.lastTab=t;save();
+ document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t?'true':'false'));
+ try{history.replaceState(null,'','#'+t);}catch(e){}
+ render();window.scrollTo(0,0);}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+function updLock(){$('#tabLock').textContent=toetsOpen()?'open':'op slot';}
+function render(){updLock();const m=$('#main');
+ if(S.toets&&!S.toets.finished&&TAB!=='toets'){m.innerHTML=`<section class="panel"><h2>Je eindtoets is bezig</h2><p class="lead">Theorie, Oefenen en Praktijk zijn gesloten tot je inlevert. Het rapport toont hoe vaak je de toets verlaten hebt.</p><div><button class="btn acc" type="button" id="backT">Terug naar de toets</button></div></section>`;$('#backT').onclick=()=>setTab('toets');return;}
+ if(TAB==='theorie')m.innerHTML=renderTheorie();
+ else if(TAB==='oefenen'){m.innerHTML=renderOefenen();bindOefenen();}
+ else if(TAB==='praktijk'){m.innerHTML=renderPraktijk();bindPraktijk();}
+ else {m.innerHTML=renderToets();bindToets();}
+ if(TAB==='theorie')bindTheorie();}
+
+/* Theorie */
+function renderTheorie(){const c=CUR.ch;
+ const nav=Object.keys(TH).map(k=>`<button class="navbtn" data-ch="${k}" aria-current="${k===c}"><span><small>${k}</small>${CH[k]}</span></button>`).join('')+`<button class="navbtn" data-ch="W" aria-current="${c==='W'}"><span><small>Alles</small>Woordenlijst</span></button>`;
+ let body;
+ if(c==='W'){body=`<p class="eyebrow">Woordenlijst</p><h2>Alle begrippen</h2><input type="text" id="gSearch" placeholder="Zoek een begrip, bv. bootvolgorde" aria-label="Zoek in de woordenlijst"><dl class="glos" id="gList">${glosHTML('')}</dl>`;}
+ else{const tj=TJ[c].map((t,i)=>{const opts=shuffle([t[1],...t[2]]);return `<div class="q" data-tj="${i}"><p class="prompt">${esc(t[0])}</p><div class="opts">${opts.map(o=>`<button class="opt" data-a="${esc(o)}" data-ok="${o===t[1]}">${esc(o)}</button>`).join('')}</div><div class="fbx"></div></div>`;}).join('');
+  const words=Object.keys(G).filter(k=>G[k][1]===c);
+  body=`<p class="eyebrow">${c} · Theorie</p><h2>${CH[c]}</h2><div class="prose">${TH[c]}</div><h3>Test jezelf</h3><div class="tj">${tj}</div><h3>Woordenlijst ${c}</h3><dl class="glos">${words.map(k=>`<dt>${esc(k)}</dt><dd>${esc(G[k][0])}</dd>`).join('')}</dl>`;}
+ return `<div class="split"><nav class="side" aria-label="Hoofdstukken">${nav}</nav><section class="panel">${body}</section></div>`;}
+function glosHTML(f){f=f.toLowerCase();return Object.keys(G).sort((a,b)=>a.localeCompare(b,'nl')).filter(k=>!f||k.toLowerCase().includes(f)||G[k][0].toLowerCase().includes(f)).map(k=>`<dt>${esc(k)} <span class="small">${G[k][1]}</span></dt><dd>${esc(G[k][0])}</dd>`).join('')||'<dd>Niets gevonden. Probeer een ander woord.</dd>';}
+function bindTheorie(){document.querySelectorAll('.side .navbtn').forEach(b=>b.onclick=()=>{CUR.ch=b.dataset.ch;render();});
+ const s=$('#gSearch');if(s)s.oninput=()=>{$('#gList').innerHTML=glosHTML(s.value);};
+ document.querySelectorAll('.tj .q').forEach(q=>q.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const ok=o.dataset.ok==='true';q.querySelectorAll('.opt').forEach(x=>{x.classList.remove('right','wrong');if(x.dataset.ok==='true'&&ok)x.classList.add('right');});o.classList.add(ok?'right':'wrong');
+  const right=[...q.querySelectorAll('.opt')].find(x=>x.dataset.ok==='true').dataset.a;q.querySelector('.fbx').innerHTML=ok?`<div class="fb ok"><b>Juist!</b></div>`:`<div class="fb no"><b>Nog niet.</b> ${gloss(o.dataset.a)?esc(o.dataset.a)+': '+esc(gloss(o.dataset.a))+' ':''}Probeer opnieuw of lees de uitleg hierboven.</div>`;}));}
+
+/* Oefenen */
+const Q={}; // huidige opgave per oefening
+const RECENT={};
+function newQ(id){const e=EX.find(x=>x.id===id);let q,tries=0;RECENT[id]=RECENT[id]||[];
+ do{q=e.gen();tries++;}while(RECENT[id].includes(q.prompt)&&tries<12);
+ RECENT[id].push(q.prompt);if(RECENT[id].length>6)RECENT[id].shift();
+ q.state={sel:null,order:[],done:false,shown:false,hintShown:false};Q[id]=q;return q;}
+function renderOefenen(){const e=EX.find(x=>x.id===CUR.ex);const q=Q[e.id]||newQ(e.id);
+ const nav=EX.map(x=>{const n=okCount(x.id);return `<button class="navbtn" data-ex="${x.id}" aria-current="${x.id===e.id}"><span><small>${x.ch==='mix'?'Alles':x.ch==='P'?'Praktijk':x.ch} · verplicht</small>${esc(x.title)}</span><span class="pill ${n>=NEED?'ok':'todo'}">${n>=NEED?'✓ ':''}${Math.min(n,99)}/${NEED}</span></button>`;}).join('');
+ const done=REQ.filter(id=>okCount(id)>=NEED).length;
+ const vbSteps=e.vb.map((s,i)=>`<p class="st" ${i>0?'hidden':''} data-st="${i}">${esc(s)}</p>`).join('');
+ return `<p class="lead" style="margin-bottom:14px">Maak elke oefening tot je <b>minstens ${NEED} juiste antwoorden</b> hebt. Dan gaat de eindtoets open. Je hebt nu <b>${done} van ${REQ.length}</b> oefeningen klaar.</p>
+ <div class="progress" style="margin-bottom:20px" aria-label="Voortgang"><i style="width:${Math.round(done/REQ.length*100)}%"></i></div>
+ <div class="split"><nav class="side" aria-label="Oefeningen">${nav}</nav>
+ <section class="panel" id="exPanel"><div><p class="eyebrow">${e.ch==='mix'?'Alle hoofdstukken':e.ch==='P'?CH.P:e.ch+' · '+CH[e.ch]}</p><h2>${esc(e.title)}</h2><p class="small">Juist beantwoord: <b>${okCount(e.id)}</b> (minstens ${NEED} nodig)</p></div>
+ <details class="uitleg" ${okCount(e.id)===0?'open':''}><summary>Uitleg, stappenplan en uitgewerkt voorbeeld</summary><div>
+ <p>${esc(e.uitleg)}</p><div class="box onthoud"><h4>Stappenplan</h4><ol style="margin:0;padding-left:20px">${e.plan.map(p=>`<li>${esc(p)}</li>`).join('')}</ol></div>
+ <div class="box vb"><h4>Uitgewerkt voorbeeld</h4><div class="stepper">${vbSteps}</div><div class="row"><button class="btn ghost" id="vbNext" type="button">Volgende stap</button><button class="btn ghost" id="vbReset" type="button">Opnieuw</button></div></div></div></details>
+ <div class="q" id="qBox">${renderQ(q,e)}</div></section></div>`;}
+function renderQ(q,e){let inp='';
+ if(q.type==='mc')inp=`<div class="opts">${q.options.map(o=>`<button class="opt" type="button" data-o="${esc(o)}" aria-pressed="${q.state.sel===o}">${esc(o)}</button>`).join('')}</div>`;
+ else if(q.type==='num')inp=`<div class="row"><input type="text" id="qIn" inputmode="decimal" autocomplete="off" aria-label="Jouw antwoord" style="width:180px"><span>${esc(q.unit||'')}</span></div>`;
+ else if(q.type==='text')inp=`<div class="row"><input type="text" id="qIn" autocomplete="off" placeholder="${esc(q.placeholder||'')}" aria-label="Jouw antwoord" style="width:220px"></div>`;
+ else if(q.type==='order'){q.state.pool=q.state.pool||shuffle(q.items);inp=`<ol class="chosen" id="chosen">${q.state.order.map(i=>`<li>${esc(i)}</li>`).join('')}</ol><div class="ordersel">${q.state.pool.map(i=>`<button type="button" data-i="${esc(i)}" ${q.state.order.includes(i)?'disabled':''}>${esc(i)}</button>`).join('')}</div><div><button class="btn ghost" type="button" id="ordClear">Wis volgorde</button></div>`;}
+ return `${q.from?`<p class="small">Uit: ${esc(q.from)}</p>`:''}<p class="prompt">${q.type==='mc'&&q.prompt.includes('<br>')?q.prompt:esc(q.prompt).replace(/&lt;b&gt;|&lt;\/b&gt;/g,m=>m.includes('/')?'</b>':'<b>')}</p>${inp}
+ <div class="row"><button class="btn acc" type="button" id="qCheck">Controleer</button><button class="btn ghost" type="button" id="qHint">Hint</button><button class="btn ghost" type="button" id="qSol">Toon oplossing</button><button class="btn ghost" type="button" id="qNew">Nieuwe opgave</button></div><div id="qFb" aria-live="polite"></div>`;}
+function bindOefenen(){document.querySelectorAll('.side .navbtn').forEach(b=>b.onclick=()=>{CUR.ex=b.dataset.ex;render();});
+ const e=EX.find(x=>x.id===CUR.ex);let vbI=0;const nx=$('#vbNext');
+ if(nx){nx.onclick=()=>{vbI=Math.min(vbI+1,e.vb.length-1);document.querySelectorAll('.stepper .st').forEach(s=>s.hidden=+s.dataset.st>vbI);if(vbI===e.vb.length-1)nx.disabled=true;};$('#vbReset').onclick=()=>{vbI=0;nx.disabled=false;document.querySelectorAll('.stepper .st').forEach(s=>s.hidden=+s.dataset.st>0);};}
+ bindQ(e);}
+function bindQ(e){const q=Q[e.id];const box=$('#qBox');
+ box.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{if(q.state.done)return;q.state.sel=o.dataset.o;box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===o?'true':'false'));});
+ box.querySelectorAll('.ordersel button').forEach(b=>b.onclick=()=>{if(q.state.done)return;q.state.order.push(b.dataset.i);rerenderQ(e);});
+ const oc=$('#ordClear');if(oc)oc.onclick=()=>{if(q.state.done)return;q.state.order=[];rerenderQ(e);};
+ const inp=$('#qIn');if(inp)inp.onkeydown=ev=>{if(ev.key==='Enter')$('#qCheck').click();};
+ $('#qCheck').onclick=()=>checkQ(e);
+ $('#qHint').onclick=()=>{q.state.hintShown=true;$('#qFb').innerHTML=`<div class="fb hint"><b>Hint:</b> ${esc(q.hint)}</div>`;};
+ $('#qSol').onclick=()=>{q.state.shown=true;q.state.done=true;$('#qFb').innerHTML=`<div class="fb sol"><b>Oplossing:</b> ${esc(ansText(q))}<br>${esc(q.why)}<br><span class="small">Een getoonde oplossing telt niet als juist. Klik op "Nieuwe opgave".</span></div>`;markMC(q,box);};
+ $('#qNew').onclick=()=>{newQ(e.id);rerenderQ(e);};}
+function rerenderQ(e){$('#qBox').innerHTML=renderQ(Q[e.id],e);bindQ(e);}
+function ansText(q){return q.type==='order'?q.items.map((x,i)=>(i+1)+'. '+x).join('  '):q.type==='num'?nl(q.answer)+(q.unit?' '+q.unit:''):String(q.answer);}
+function markMC(q,box){if(q.type!=='mc')return;box.querySelectorAll('.opt').forEach(x=>{if(x.dataset.o===q.answer)x.classList.add('right');else if(x.dataset.o===q.state.sel)x.classList.add('wrong');});}
+function judge(q,val){ // geeft {ok, msg, empty}
+ if(q.type==='mc'){if(val==null)return {empty:true};return {ok:val===q.answer,msg:val===q.answer?'':`Je koos "${val}". ${gloss(val)&&gloss(val)!==gloss(q.answer)?'Dat is: '+gloss(val)+' ':''}`};}
+ if(q.type==='num'){const v=parseNum(val);if(v===null)return {empty:true};const ok=Math.abs(v-q.answer)<=(q.tol||1e-9);return {ok,msg:ok?'':(q.diag&&q.diag(v))||'Dat getal klopt niet. Volg het stappenplan.'};}
+ if(q.type==='order'){if(!val||val.length<q.items.length)return {empty:true};const ok=val.every((x,i)=>x===q.items[i]);let first=val.findIndex((x,i)=>x!==q.items[i]);return {ok,msg:ok?'':`Stap ${first+1} klopt niet: daar hoort "${q.items[first]}".`};}}
+function checkQ(e){const q=Q[e.id];const box=$('#qBox');if(q.state.done){$('#qFb').innerHTML=`<div class="fb sol">Deze opgave is afgerond. Klik op "Nieuwe opgave".</div>`;return;}
+ let val=q.type==='mc'?q.state.sel:q.type==='order'?q.state.order:$('#qIn').value;
+ const r=judge(q,val);
+ if(r.empty){$('#qFb').innerHTML=`<div class="fb hint">${q.type==='mc'?'Kies eerst een antwoord.':q.type==='order'?'Klik eerst alle stappen aan.':'Vul eerst een antwoord in.'}</div>`;return;}
+ q.state.done=true;const p=S.prog[e.id]=S.prog[e.id]||{ok:0,tries:0};p.tries++;
+ if(r.ok){p.ok++;}
+ save();markMC(q,box);const inp=$('#qIn');if(inp)inp.classList.add(r.ok?'good':'bad');
+ $('#qFb').innerHTML=r.ok?`<div class="fb ok"><b>Juist!</b> ${esc(q.why)}${p.ok===NEED?'<br><b>Deze oefening is in orde voor de toets.</b>':''}</div>`:`<div class="fb no"><b>Niet juist.</b> ${esc(r.msg)}<br><b>Juist:</b> ${esc(ansText(q))}. ${esc(q.why)}</div>`;
+ // navigatie-teller bijwerken
+ const nb=document.querySelector(`.navbtn[data-ex="${e.id}"] .pill`);if(nb){nb.className='pill '+(p.ok>=NEED?'ok':'todo');nb.textContent=(p.ok>=NEED?'✓ ':'')+p.ok+'/'+NEED;}
+ const sm=document.querySelector('#exPanel .small b');if(sm)sm.textContent=p.ok;updLock();}
+
+
+/* ---------- Praktijk ---------- */
+const PF=[
+ {sec:'1 · Opstarten',how:'Druk <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd> → tabblad <b>Opstarten</b> (Windows 11: <b>Opstart-apps</b>). Klik op de kolom "Invloed op opstarten" om te sorteren.',fields:[
+  {id:'biosTijd',lab:'Laatste BIOS-tijd (seconden, rechtsboven)',type:'number',ph:'bv. 7,4'},
+  {id:'aanAantal',lab:'Hoeveel programma\'s staan op "Ingeschakeld"?',type:'number',ph:'bv. 9'},
+  {id:'hoogApp',lab:'Programma met de hoogste invloed',type:'text',ph:'bv. Microsoft Teams'},
+  {id:'uitApp',lab:'Welk programma zou jij uitschakelen?',type:'text',ph:'bv. Spotify'},
+  {id:'uitWhy',lab:'Waarom?',type:'select',opts:['','Ik start het zelf wanneer ik het nodig heb','Het is mijn antivirus','Het hoort bij geluid, touchpad of grafische kaart']}]},
+ {sec:'2 · Belasting',how:'In Taakbeheer → <b>Prestaties</b>. Laat alleen je gewone programma\'s open (browser, Word) en kijk een halve minuut.',fields:[
+  {id:'cpuPct',lab:'CPU: gebruik (%)',type:'number',ph:'bv. 34'},
+  {id:'ramUsed',lab:'Geheugen: in gebruik (GB)',type:'number',ph:'bv. 6,9'},
+  {id:'ramTot',lab:'Geheugen: totaal (GB, rechtsboven)',type:'number',ph:'bv. 8'},
+  {id:'ramPct',lab:'Reken uit: hoeveel % van het RAM is in gebruik?',type:'number',ph:'gebruikt ÷ totaal × 100'},
+  {id:'schijfType',lab:'Schijf 0: staat er SSD of HDD?',type:'select',opts:['','SSD','HDD']},
+  {id:'bottleneck',lab:'Is er een bottleneck (80 % of meer)?',type:'select',opts:['','Nee, alles onder 80 %','Processor (CPU)','Werkgeheugen (RAM)','Processor én werkgeheugen']}]},
+ {sec:'3 · Opslag',how:'Open Verkenner (<kbd>Windows-toets</kbd> + <kbd>E</kbd>) → <b>Deze pc</b>. Kijk bij station C:.',fields:[
+  {id:'cVrij',lab:'C: vrij (GB)',type:'number',ph:'bv. 21,5'},
+  {id:'cTot',lab:'C: totaal (GB)',type:'number',ph:'bv. 237'},
+  {id:'cPct',lab:'Reken uit: hoeveel % is vrij?',type:'number',ph:'vrij ÷ totaal × 100'},
+  {id:'cOordeel',lab:'Jouw oordeel',type:'select',opts:['','Te vol (minder dan 10 %)','Krap (10 – 15 %)','Genoeg (15 % of meer)']}]},
+ {sec:'4 · Windows en updates',how:'<b>Instellingen</b> (<kbd>Windows-toets</kbd> + <kbd>I</kbd>) → <b>Systeem → Info</b> voor de versie. Daarna <b>Windows Update</b> en <b>Geavanceerde opties</b>.',fields:[
+  {id:'winVer',lab:'Welke Windows heb je?',type:'select',opts:['','Windows 11','Windows 10','Iets anders']},
+  {id:'steun',lab:'Krijgt deze versie nog gewone gratis updates?',type:'select',opts:['','Ja','Nee']},
+  {id:'wuStatus',lab:'Wat zegt Windows Update na "Naar updates zoeken"?',type:'select',opts:['','Je bent up-to-date','Er staan updates klaar','Opnieuw opstarten vereist']},
+  {id:'andereMS',lab:'Updates voor andere Microsoft-producten ontvangen',type:'select',opts:['','Aan','Uit']}]},
+ {sec:'5 · Beveiliging',how:'Open <b>Windows-beveiliging</b> → <b>Virus- en bedreigingsbeveiliging</b>. Onderaan zie je welke antivirus actief is.',fields:[
+  {id:'av',lab:'Welke antivirus beschermt deze pc?',type:'text',ph:'bv. Microsoft Defender'},
+  {id:'avAantal',lab:'Hoeveel antivirusprogramma\'s staan op realtime?',type:'number',ph:'bv. 1'},
+  {id:'laatsteScan',lab:'Wanneer was de laatste scan?',type:'select',opts:['','Deze week','Deze maand','Langer geleden of nooit']}]},
+ {sec:'6 · Analyse en synchronisatie',how:'Typ <b>betrouwbaarheid</b> in het startmenu en open <b>Betrouwbaarheidsgeschiedenis</b>. Kijk daarna in het <b>systeemvak</b> naast de klok welke synchronisatie-apps draaien.',fields:[
+  {id:'kritiek',lab:'Aantal kritieke gebeurtenissen (rode kruisjes) de laatste 7 dagen',type:'number',ph:'bv. 2'},
+  {id:'syncApp',lab:'Welke synchronisatie-app(s) draaien er?',type:'select',opts:['','Geen','OneDrive','Google Drive','Dropbox','iCloud','Meer dan één']},
+  {id:'opAanvraag',lab:'Staat Bestanden op aanvraag aan? (OneDrive → Instellingen → Synchroniseren en back-up maken → Geavanceerde instellingen)',type:'select',opts:['','Aan','Uit','Geen OneDrive']}]}];
+const SAMPLE={biosTijd:'7.4',aanAantal:'9',hoogApp:'Microsoft Teams',cpuPct:'34',ramUsed:'6.9',ramTot:'8',schijfType:'SSD',cVrij:'21.5',cTot:'237',winVer:'Windows 11',wuStatus:'Er staan updates klaar',andereMS:'Uit',av:'Microsoft Defender',avAantal:'1',kritiek:'2',syncApp:'OneDrive'};
+function pv(id){return (S.prak[id]||'').toString().trim();}
+function pnum(id){const v=pv(id).replace(',','.');return v===''?NaN:+v;}
+function ramP(){const u=pnum('ramUsed'),t=pnum('ramTot');return isNaN(u)||isNaN(t)||!t?NaN:Math.round(u/t*100);}
+function cP(){const v=pnum('cVrij'),t=pnum('cTot');return isNaN(v)||isNaN(t)||!t?NaN:Math.round(v/t*100);}
+function pcheck(){const m={};const set=(id,cls,t)=>m[id]={cls,t};
+ const bt=pnum('biosTijd');if(isNaN(bt)||bt<=0||bt>300)set('biosTijd','no','Vul de Laatste BIOS-tijd in seconden in (staat rechtsboven).');else if(bt>15)set('biosTijd','warn',nl(bt)+' s is lang. In de UEFI kan Fast Boot en de bootvolgorde helpen (H7).');else set('biosTijd','ok',nl(bt)+' s: normaal.');
+ const aa=pnum('aanAantal');if(isNaN(aa)||aa<0||aa%1||aa>200)set('aanAantal','no','Tel de programma\'s met status "Ingeschakeld".');else set('aanAantal',aa>12?'warn':'ok',aa>12?aa+' is veel: kijk wat je echt nodig hebt.':aa+' opstartprogramma\'s.');
+ if(pv('hoogApp').length<2)set('hoogApp','no','Neem de naam over (of typ "geen" als niets Hoog of Gemiddeld is).');else set('hoogApp','ok','');
+ if(pv('uitApp').length<2)set('uitApp','no','Kies een programma dat je zou uitschakelen.');else set('uitApp','ok','');
+ const w=pv('uitWhy');if(!w)set('uitWhy','no','Kies een reden.');else if(!w.startsWith('Ik start'))set('uitWhy','no','Beveiliging en drivers (geluid, touchpad, grafische kaart) laat je aan. Kies een ander programma.');else set('uitWhy','ok','Juist: uitschakelen ≠ verwijderen, je start het zelf.');
+ const cpu=pnum('cpuPct');if(isNaN(cpu)||cpu<0||cpu>100)set('cpuPct','no','Vul een percentage van 0 tot 100 in.');else set('cpuPct','ok','');
+ const ru=pnum('ramUsed'),rt=pnum('ramTot');if(isNaN(rt)||rt<1||rt>1024)set('ramTot','no','Vul het totaal in GB in (bv. 8 of 16).');else set('ramTot','ok','');
+ if(isNaN(ru)||ru<=0)set('ramUsed','no','Vul in hoeveel GB in gebruik is.');else if(!isNaN(rt)&&ru>rt)set('ramUsed','no','In gebruik kan niet groter zijn dan het totaal.');else set('ramUsed','ok','');
+ const rp=pnum('ramPct'),want=ramP();if(isNaN(rp))set('ramPct','no','Reken het percentage uit.');else if(isNaN(want))set('ramPct','warn','Vul eerst gebruikt en totaal in.');else if(Math.abs(rp-want)>2)set('ramPct','no',Math.abs(rp-(100-want))<=2?'Dat is het vrije deel. Bereken het deel in gebruik.':'Reken opnieuw: '+nl(ru)+' ÷ '+nl(rt)+' × 100 = ?');else set('ramPct','ok',want+' %'+(want>=80?': bijna vol!':'.'));
+ const st=pv('schijfType');if(!st)set('schijfType','no','Kies SSD of HDD.');else set('schijfType',st==='HDD'?'warn':'ok',st==='HDD'?'Een HDD is traag: een SSD is de grootste verbetering (H8).':'Een SSD: snel.');
+ const bn=pv('bottleneck');if(!bn)set('bottleneck','no','Kies een antwoord.');else if(!isNaN(cpu)&&!isNaN(want)){const c=cpu>=80,r=want>=80;const exp=c&&r?'Processor én werkgeheugen':c?'Processor (CPU)':r?'Werkgeheugen (RAM)':'Nee, alles onder 80 %';if(bn!==exp)set('bottleneck','no','Kijk naar je cijfers: CPU '+cpu+' %, RAM '+want+' %. Wat haalt 80 % of meer?');else set('bottleneck','ok',exp.startsWith('Nee')?'Geen bottleneck bij gewoon werk.':'Juist. Sluit programma\'s; blijft het zo, dan is upgraden nodig.');}
+ const cv=pnum('cVrij'),ct=pnum('cTot');if(isNaN(ct)||ct<16)set('cTot','no','Vul de totale grootte van C: in GB in.');else set('cTot','ok','');
+ if(isNaN(cv)||cv<0)set('cVrij','no','Vul de vrije ruimte in GB in.');else if(!isNaN(ct)&&cv>ct)set('cVrij','no','Vrij kan niet groter zijn dan totaal.');else set('cVrij','ok','');
+ const cp=pnum('cPct'),cw=cP();if(isNaN(cp))set('cPct','no','Reken het percentage uit.');else if(isNaN(cw))set('cPct','warn','Vul eerst vrij en totaal in.');else if(Math.abs(cp-cw)>1)set('cPct','no',Math.abs(cp-(100-cw))<=1?'Dat is het gebruikte deel. Bereken het vrije deel.':'Reken opnieuw: '+nl(cv)+' ÷ '+nl(ct)+' × 100 = ?');else set('cPct','ok',cw+' % vrij.');
+ const co=pv('cOordeel');if(!co)set('cOordeel','no','Kies een oordeel.');else if(!isNaN(cw)){const e=cw<10?'Te vol (minder dan 10 %)':cw<15?'Krap (10 – 15 %)':'Genoeg (15 % of meer)';if(co!==e)set('cOordeel','no','Met '+cw+' % vrij klopt dat niet. Grenzen: 10 % en 15 %.');else set('cOordeel','ok',cw<15?'Ruim op met Schijfopruiming (H8).':'In orde.');}
+ const wv=pv('winVer');if(!wv)set('winVer','no','Kies je Windows-versie.');else set('winVer','ok','');
+ const sg=pv('steun');if(!sg)set('steun','no','Kies ja of nee.');else if(wv==='Windows 10'&&sg==='Ja')set('steun','no','Windows 10 krijgt sinds 14 oktober 2025 geen gewone gratis updates meer.');else if(wv==='Windows 11'&&sg==='Nee')set('steun','no','Windows 11 wordt nog ondersteund (als je de laatste versie installeert).');else set('steun',sg==='Nee'?'warn':'ok',sg==='Nee'?'Overstappen naar een ondersteunde versie is nodig (H4).':'In orde.');
+ const wu=pv('wuStatus');if(!wu)set('wuStatus','no','Kies wat Windows Update toont.');else set('wuStatus',wu.startsWith('Je bent')?'ok':'warn',wu.startsWith('Je bent')?'Up-to-date.':'Installeer de updates en start opnieuw op (H5).');
+ const am=pv('andereMS');if(!am)set('andereMS','no','Kies aan of uit.');else set('andereMS',am==='Aan'?'ok':'warn',am==='Aan'?'Office wordt mee bijgewerkt.':'Zet dit aan, dan wordt Office mee bijgewerkt (H5).');
+ if(pv('av').length<2)set('av','no','Neem de naam van de antivirus over.');else set('av','ok','');
+ const an=pnum('avAantal');if(isNaN(an)||an%1||an<0)set('avAantal','no','Vul een aantal in.');else if(an===0)set('avAantal','no','Zonder antivirus is je pc onbeschermd. Zet Microsoft Defender aan.');else if(an>1)set('avAantal','warn','Meer dan één realtime antivirus maakt de pc traag. Houd er één (H6).');else set('avAantal','ok','Eén realtime antivirus: juist.');
+ const kr=pnum('kritiek');if(isNaN(kr)||kr<0||kr%1||kr>500)set('kritiek','no','Tel de rode kruisjes van de laatste 7 dagen (0 mag ook).');else set('kritiek',kr>3?'warn':'ok',kr>3?'Veel crashes: klik op die dagen en kijk welk programma steeds terugkomt.':kr+' kritieke gebeurtenis(sen): '+(kr?'klik erop en lees welk programma het was.':'stabiel.'));
+ const sa=pv('syncApp');if(!sa)set('syncApp','no','Kies een antwoord (Geen mag ook).');else set('syncApp',sa==='Meer dan één'?'warn':'ok',sa==='Meer dan één'?'Meerdere sync-apps tegelijk kosten extra internet, schijf en processor. Laat ze nooit dezelfde map synchroniseren (H9).':sa==='Geen'?'Geen synchronisatie op de achtergrond.':sa+' synchroniseert op de achtergrond.');
+ const oa=pv('opAanvraag');if(!oa)set('opAanvraag','no','Kies een antwoord.');else if(oa==='Geen OneDrive'&&(sa==='OneDrive'))set('opAanvraag','no','Je koos hierboven OneDrive. Kijk in de OneDrive-instellingen.');else set('opAanvraag',oa==='Uit'?'warn':'ok',oa==='Uit'?'Zet Bestanden op aanvraag aan: dat bespaart ruimte op je schijf (H9).':oa==='Aan'?'Bestanden nemen pas ruimte in als je ze opent.':'');
+ const ls=pv('laatsteScan');if(!ls)set('laatsteScan','no','Kies een antwoord.');else set('laatsteScan',ls.startsWith('Langer')?'warn':'ok',ls.startsWith('Langer')?'Start nu een snelle scan (H6).':'In orde.');
+ return m;}
+function advice(){const a=[];const cpu=pnum('cpuPct'),r=ramP(),c=cP();
+ if(pnum('aanAantal')>12||pnum('biosTijd')>15)a.push(pnum('biosTijd')>15?'Opstarten: Fast Boot en bootvolgorde nakijken in de UEFI; opstartprogramma\'s opruimen.':'Opstartprogramma\'s opruimen in Taakbeheer.');
+ if(r>=80)a.push('Werkgeheugen bijna vol: programma\'s sluiten, eventueel RAM bijsteken.');
+ if(cpu>=80)a.push('Processor zwaar belast: zware programma\'s sluiten, scannen op malware.');
+ if(pv('schijfType')==='HDD')a.push('HDD vervangen door een SSD.');
+ if(c<15)a.push('Station C: opruimen met Schijfopruiming.');
+ if(pv('steun')==='Nee')a.push('Overstappen naar een ondersteunde Windows-versie.');
+ if(!pv('wuStatus').startsWith('Je bent'))a.push('Openstaande updates installeren en opnieuw opstarten.');
+ if(pv('andereMS')==='Uit')a.push('"Updates voor andere Microsoft-producten" aanzetten.');
+ if(pnum('avAantal')>1)a.push('Slechts één realtime antivirus overhouden.');
+ if(pv('laatsteScan').startsWith('Langer'))a.push('Een volledige scan uitvoeren.');
+ if(pnum('kritiek')>3)a.push('Betrouwbaarheidsgeschiedenis nakijken: welk programma crasht steeds?');
+ if(pv('syncApp')==='Meer dan één')a.push('Synchronisatie beperken: één sync-app per map, onderbreken als je de pc nodig hebt.');
+ if(pv('opAanvraag')==='Uit')a.push('Bestanden op aanvraag aanzetten in OneDrive.');
+ return a;}
+function renderPraktijk(){const m=pcheck();
+ const secs=PF.map(s=>`<section class="panel"><h3>${s.sec}</h3><p>${s.how}</p><div class="grid2">${s.fields.map(f=>{const v=esc(pv(f.id));const inp=f.type==='select'?`<select id="p_${f.id}">${f.opts.map(o=>`<option ${pv(f.id)===o?'selected':''} value="${esc(o)}">${o?esc(o):'Kies …'}</option>`).join('')}</select>`:`<input type="text" ${f.type==='number'?'inputmode="decimal"':''} id="p_${f.id}" value="${v}" placeholder="${esc(f.ph||'')}" autocomplete="off">`;
+  const mm=m[f.id];const touched=S.prak['_t_'+f.id];return `<div class="field"><label for="p_${f.id}">${esc(f.lab)}</label>${inp}<div class="pm" data-for="${f.id}">${touched&&mm&&mm.t?`<span class="msg ${mm.cls}">${esc(mm.t)}</span>`:''}</div></div>`;}).join('')}</div></section>`).join('');
+ return `<div style="display:flex;flex-direction:column;gap:18px"><div class="panel"><p class="eyebrow">Praktijk</p><h2>Onderzoek je eigen pc</h2><p class="lead">Jij bent de pc-dokter. Zoek de gegevens op je eigen Windows-pc op. De app controleert of wat je invult kan kloppen en geeft tips. Op het einde krijg je een diagnose: neem er een screenshot van (<kbd>Windows-toets</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>).</p>
+ <div class="grid2"><div class="field"><label for="p_naam">Naam</label><input type="text" id="p_naam" value="${esc(S.naam)}" autocomplete="name"></div><div class="field"><label for="p_klas">Klas</label><input type="text" id="p_klas" value="${esc(S.klas)}"></div></div>
+ <div class="row"><button class="btn ghost" type="button" id="pSample">Ik heb geen Windows-pc: vul de voorbeeldfiche in</button><button class="btn ghost" type="button" id="pCheckAll">Controleer alles</button></div>
+ <p class="small">De voorbeeldfiche vult de meetgegevens van een voorbeeldlaptop in (geen echte pc). Wat je moet uitrekenen of beoordelen, vul je zelf in.</p>
+ <p class="small"><span class="msg ok">groen</span> in orde · <span class="msg warn">oranje</span> klopt, maar hier valt winst te halen · <span class="msg no">rood</span> verbeteren</p></div>
+ ${secs}<div class="panel"><h3>Diagnose</h3><p>Geen rode velden meer? Maak je diagnose.</p><div class="row"><button class="btn acc" type="button" id="pReport">Maak mijn diagnose</button></div><div id="pOut"></div></div></div>`;}
+function bindPraktijk(){const all=PF.flatMap(s=>s.fields);
+ const upd=()=>{const m=pcheck();all.forEach(f=>{const el=$('#p_'+f.id);const mm=m[f.id];const box=document.querySelector(`.pm[data-for="${f.id}"]`);if(!S.prak['_t_'+f.id]){box.innerHTML='';el.classList.remove('good','bad');return;}box.innerHTML=mm&&mm.t?`<span class="msg ${mm.cls}">${esc(mm.t)}</span>`:'';el.classList.toggle('good',!!mm&&mm.cls==='ok');el.classList.toggle('bad',!!mm&&mm.cls==='no');});};
+ all.forEach(f=>{const el=$('#p_'+f.id);const h=()=>{S.prak[f.id]=el.value;S.prak['_t_'+f.id]=1;save();upd();};el.addEventListener(f.type==='select'?'change':'input',h);});
+ $('#p_naam').oninput=ev=>{S.naam=ev.target.value;save();};$('#p_klas').oninput=ev=>{S.klas=ev.target.value;save();};
+ $('#pSample').onclick=()=>{Object.assign(S.prak,SAMPLE);S.prak._sample=1;Object.keys(SAMPLE).forEach(k=>S.prak['_t_'+k]=1);save();render();};
+ $('#pCheckAll').onclick=()=>{all.forEach(f=>S.prak['_t_'+f.id]=1);save();upd();};
+ upd();
+ $('#pReport').onclick=()=>{all.forEach(f=>S.prak['_t_'+f.id]=1);save();upd();const m=pcheck();const bad=all.filter(f=>!m[f.id]||m[f.id].cls==='no');
+  if(!S.naam.trim()||!S.klas.trim()){$('#pOut').innerHTML='<p class="msg no">Vul bovenaan je naam en klas in.</p>';return;}
+  if(bad.length){$('#pOut').innerHTML=`<p class="msg no">Nog ${bad.length} veld(en) in het rood: ${bad.map(f=>esc(f.lab)).join(' · ')}. Verbeter ze eerst.</p>`;return;}
+  const now=new Date();const code=hashStr(norm(S.naam)+'|'+norm(S.klas)+'|'+pv('biosTijd')+'|'+pv('ramTot')+'|'+pv('cTot')+'|'+now.toISOString().slice(0,10)).slice(0,6).toUpperCase();const adv=advice();
+  $('#pOut').innerHTML=`<div class="report" id="pRep"><div><p class="eyebrow">Diagnose trage pc${S.prak._sample?' · voorbeeldfiche':''}</p><h3>${esc(S.naam)} · ${esc(S.klas)}</h3><p class="small">${now.toLocaleDateString('nl-BE')} ${now.toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'})} · verslagcode <b>${code}</b></p></div>
+  <div class="tbl"><table><tr><th>Onderdeel</th><th>Gemeten</th><th>Beoordeling</th></tr>
+  <tr><td>Opstarten</td><td>BIOS-tijd ${esc(nl(pv('biosTijd')))} s · ${esc(pv('aanAantal'))} opstartprogramma's</td><td>Zwaarste: ${esc(pv('hoogApp'))}; ik schakel ${esc(pv('uitApp'))} uit</td></tr>
+  <tr><td>Processor</td><td>${esc(pv('cpuPct'))} %</td><td>${pnum('cpuPct')>=80?'zwaar belast':'in orde'}</td></tr>
+  <tr><td>Werkgeheugen</td><td>${esc(nl(pv('ramUsed')))} van ${esc(nl(pv('ramTot')))} GB = ${ramP()} %</td><td>${ramP()>=80?'bijna vol':'in orde'}</td></tr>
+  <tr><td>Opslag</td><td>${esc(pv('schijfType'))} · C: ${esc(nl(pv('cVrij')))} van ${esc(nl(pv('cTot')))} GB vrij = ${cP()} %</td><td>${esc(pv('cOordeel').split(' (')[0])}</td></tr>
+  <tr><td>Windows</td><td>${esc(pv('winVer'))} · ${esc(pv('wuStatus'))}</td><td>${pv('steun')==='Ja'?'ondersteund':'niet meer ondersteund'}; andere Microsoft-producten: ${esc(pv('andereMS').toLowerCase())}</td></tr>
+  <tr><td>Beveiliging</td><td>${esc(pv('av'))} · ${esc(pv('avAantal'))} realtime</td><td>laatste scan: ${esc(pv('laatsteScan').toLowerCase())}</td></tr>
+  <tr><td>Stabiliteit, sync</td><td>${esc(pv('kritiek'))} crash(es) in 7 dagen · ${esc(pv('syncApp'))}</td><td>Bestanden op aanvraag: ${esc(pv('opAanvraag').toLowerCase())}</td></tr></table></div>
+  <div><h4>Mijn advies</h4>${adv.length?`<ol style="margin:6px 0 0;padding-left:22px">${adv.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p>Deze pc is in goede conditie. Blijf updaten en af en toe scannen.</p>'}</div>
+  <p class="msg ok">Alle gegevens gecontroleerd. Neem nu een screenshot van deze diagnose (Windows-toets + Shift + S).</p></div>`;$('#pRep').scrollIntoView({behavior:'smooth',block:'start'});};}
+
+/* ---------- controlecode ---------- */
+const SALT='TRAAG-sleutelboek-2026';
+function norm(s){return String(s||'').trim().toLowerCase().replace(/\s+/g,' ');}
+function hashStr(s){let h=0x811c9dc5;s=s+'#'+SALT;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}let h2=0x12345678;for(let i=s.length-1;i>=0;i--){h2^=s.charCodeAt(i);h2=Math.imul(h2,0x5bd1e995)>>>0;}return (h.toString(36)+h2.toString(36)).toUpperCase();}
+const PARTS_T=['H1','H2','H3','H4','H5','H6','H7','H8','H9','P'];
+const PLAN={H1:[['E1',1],['ET',2]],H2:[['E2',3]],H3:[['E3',2],['E4',2]],H4:[['E5',3]],H5:[['E6',3]],H6:[['E7',4]],H7:[['E8',3]],H8:[['E9',3]],H9:[['ES',3]],P:[['E10',1]]};
+const PMAX={H1:3,H2:3,H3:4,H4:3,H5:3,H6:4,H7:3,H8:3,H9:3,P:1};
+const NQ=Object.values(PMAX).reduce((a,b)=>a+b,0);
+const BASE=5,EPOCH=Date.UTC(2026,0,1);
+function makeCode(naam,klas,parts,dateStr,mins,poging,leaves){let pp=0;parts.forEach(x=>pp=pp*BASE+x);const days=Math.round((Date.UTC(+dateStr.slice(0,4),+dateStr.slice(5,7)-1,+dateStr.slice(8,10))-EPOCH)/864e5);
+ let n=(((pp*4096+Math.max(0,Math.min(4095,days)))*256+Math.max(0,Math.min(255,mins)))*16+Math.max(0,Math.min(15,poging||1)))*16+Math.max(0,Math.min(15,leaves||0));const body=n.toString(36).toUpperCase();const chk=hashStr(norm(naam)+'|'+norm(klas)+'|'+body).slice(0,5);return body+'-'+chk;}
+function readCode(naam,klas,code){code=String(code||'').trim().toUpperCase().replace(/\s/g,'');const m=code.match(/^([0-9A-Z]+)-([0-9A-Z]{5})$/);if(!m)return {ok:false,why:'De code heeft niet de juiste vorm (bv. 1ABC2DEF-XY12Z).'};
+ const chk=hashStr(norm(naam)+'|'+norm(klas)+'|'+m[1]).slice(0,5);let n=parseInt(m[1],36);const leaves=n%16;n=Math.floor(n/16);const poging=n%16;n=Math.floor(n/16);const mins=n%256;n=Math.floor(n/256);const days=n%4096;n=Math.floor(n/4096);let pp=n;const parts=[];for(let i=0;i<PARTS_T.length;i++){parts.unshift(pp%BASE);pp=Math.floor(pp/BASE);}const total=parts.reduce((a,b)=>a+b,0);
+ const d=new Date(EPOCH+days*864e5);const ok=chk===m[2]&&pp===0&&parts.every((x,i)=>x<=PMAX[PARTS_T[i]]);
+ return {ok,why:ok?'':'De code past niet bij deze naam en klas (let op spelling) of werd aangepast.',total,parts,date:d.toISOString().slice(0,10),mins,poging,leaves};}
+
+/* ---------- Eindtoets ---------- */
+function buildToets(){const qs=[];PARTS_T.forEach(p=>PLAN[p].forEach(([id,n])=>{const e=EX.find(x=>x.id===id);const seen=new Set(qs.map(q=>q.prompt));let c=0,g=0;while(c<n&&g<300){g++;let q=toMC(e.gen());if(q.type==='order'&&qs.some(x=>x.type==='order'))continue;if(seen.has(q.prompt))continue;seen.add(q.prompt);q.part=p;q.ans=null;if(q.type==='order')q.pool=shuffle(q.items);qs.push(q);c++;}}));
+ return shuffle(qs);}
+const PR=q=>q.prompt.includes('<br>')?q.prompt:esc(q.prompt).replace(/&lt;b&gt;|&lt;\/b&gt;/g,m=>m.includes('/')?'</b>':'<b>');
+function renderToets(){const t=S.toets;
+ if(t&&t.finished)return renderRapport(t);
+ if(t&&!t.finished)return renderToetsVraag(t);
+ const open=toetsOpen();const list=REQ.map(id=>{const e=EX.find(x=>x.id===id);const n=okCount(id);return `<li><span>${esc(e.title)}</span><span class="pill ${n>=NEED?'ok':'todo'}">${n>=NEED?'✓ klaar':n+'/'+NEED}</span></li>`;}).join('');
+ return `<section class="panel"><p class="eyebrow">Eindtoets</p><h2>${NQ} vragen over alle hoofdstukken</h2><p class="lead">Meerkeuzevragen en hooguit één volgordevraag, geen open vragen. Tijdens de toets zijn Theorie, Oefenen en Praktijk gesloten. Alles wordt automatisch verbeterd. Je kan terugbladeren tot je inlevert. Op het einde krijg je een rapport met een controlecode: neem er een screenshot van.</p>
+ ${open?`<p class="msg ok">De toets is open${S.unlocked&&!allDone()?' (ontgrendeld door de leerkracht)':''}.</p>`:`<div class="lockbox"><b>De toets is nog op slot.</b><span>Maak eerst elke oefening in Oefenen met minstens ${NEED} juiste antwoorden.</span></div>`}
+ <ul class="checklist">${list}</ul>
+ <div class="grid2"><div class="field"><label for="t_naam">Voornaam en naam</label><input type="text" id="t_naam" value="${esc(S.naam)}" autocomplete="name"></div><div class="field"><label for="t_klas">Klas</label><input type="text" id="t_klas" value="${esc(S.klas)}"></div></div>
+ <div class="row"><button class="btn acc" id="tStart" type="button" ${open?'':'disabled'}>Start de eindtoets</button><span id="tMsg" class="small"></span></div></section>`;}
+function renderToetsVraag(t){const i=t.i;const q=t.qs[i];const answered=t.qs.filter(x=>x.ans!=null&&!(Array.isArray(x.ans)&&x.ans.length<x.items.length)).length;let inp='';
+ if(q.type==='mc')inp=`<div class="opts">${q.options.map(o=>`<button class="opt" type="button" data-o="${esc(o)}" aria-pressed="${q.ans===o}">${esc(o)}</button>`).join('')}</div>`;
+ else {const ord=q.ans||[];inp=`<ol class="chosen">${ord.map(x=>`<li>${esc(x)}</li>`).join('')}</ol><div class="ordersel">${q.pool.map(x=>`<button type="button" data-i="${esc(x)}" ${ord.includes(x)?'disabled':''}>${esc(x)}</button>`).join('')}</div><div><button class="btn ghost" type="button" id="tOrdClr">Wis volgorde</button></div>`;}
+ return `<section class="panel"><div class="row" style="justify-content:space-between"><p class="eyebrow">Eindtoets · vraag ${i+1} van ${t.qs.length}</p><span class="small">${esc(t.naam)} · ${esc(t.klas)} · ${answered} beantwoord</span></div>
+ <div class="progress"><i style="width:${Math.round((i+1)/t.qs.length*100)}%"></i></div>
+ <div class="q"><p class="prompt">${PR(q)}</p>${inp}</div>
+ <div class="row"><button class="btn ghost" id="tPrev" type="button" ${i===0?'disabled':''}>Vorige</button>${i<t.qs.length-1?`<button class="btn" id="tNext" type="button">Volgende</button>`:''}<button class="btn acc" id="tEnd" type="button">Inleveren</button></div><div id="tConfirm"></div></section>`;}
+function bindToets(){const t=S.toets;
+ if(!t){const st=$('#tStart');const nm=$('#t_naam'),kl=$('#t_klas');nm.oninput=()=>{S.naam=nm.value;save();};kl.oninput=()=>{S.klas=kl.value;save();};
+  st.onclick=()=>{if(!nm.value.trim()||!kl.value.trim()){$('#tMsg').textContent='Vul eerst je naam en klas in.';return;}S.pogingen=(S.pogingen||0)+1;S.toets={poging:S.pogingen,leaves:0,naam:nm.value.trim(),klas:kl.value.trim(),start:Date.now(),qs:buildToets(),i:0,finished:false};save();render();};return;}
+ if(t.finished){const b=$('#tReview');if(b)b.onclick=()=>{$('#reviewBox').hidden=!$('#reviewBox').hidden;};const n=$('#tNew');if(n)n.onclick=()=>{$('#newConfirm').innerHTML=`<p class="msg warn">Een nieuwe toets vervangt dit rapport op dit toestel. Heb je al een screenshot? <button class="btn ghost" id="tNewYes" type="button">Ja, nieuwe toets</button></p>`;$('#tNewYes').onclick=()=>{S.toets=null;save();render();};};return;}
+ const q=t.qs[t.i];const box=$('#main');
+ box.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{q.ans=o.dataset.o;save();box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===o?'true':'false'));});
+ box.querySelectorAll('.ordersel button').forEach(b=>b.onclick=()=>{q.ans=(q.ans||[]).concat(b.dataset.i);save();render();});
+ const oc=$('#tOrdClr');if(oc)oc.onclick=()=>{q.ans=[];save();render();};
+ $('#tPrev').onclick=()=>{t.i--;save();render();};const nx=$('#tNext');if(nx)nx.onclick=()=>{t.i++;save();render();};
+ $('#tEnd').onclick=()=>{const open=t.qs.filter(x=>x.ans==null||x.ans===''||(Array.isArray(x.ans)&&x.ans.length<x.items.length)).length;
+  $('#tConfirm').innerHTML=`<div class="lockbox"><b>${open?`Je hebt nog ${open} vraag/vragen niet (volledig) beantwoord.`:'Alle vragen zijn beantwoord.'}</b><span>Na inleveren kan je niets meer veranderen.</span><div class="row"><button class="btn acc" id="tEndYes" type="button">Ja, lever in</button><button class="btn ghost" id="tEndNo" type="button">Nog even nakijken</button></div></div>`;
+  $('#tEndNo').onclick=()=>{$('#tConfirm').innerHTML='';};$('#tEndYes').onclick=()=>finishToets();};}
+function finishToets(){const t=S.toets;t.end=Date.now();const parts={};PARTS_T.forEach(p=>parts[p]=0);
+ t.qs.forEach(q=>{const r=q.ans==null?{ok:false}:judge(q,q.ans);q.ok=!!(r&&r.ok);if(q.ok)parts[q.part]++;});
+ t.parts=PARTS_T.map(p=>parts[p]);t.total=t.parts.reduce((a,b)=>a+b,0);const d=new Date(t.start);t.date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;t.mins=Math.max(0,Math.round((t.end-t.start)/60000));
+ t.code=makeCode(t.naam,t.klas,t.parts,t.date,t.mins,t.poging,t.leaves);t.finished=true;save();render();window.scrollTo(0,0);}
+function renderRapport(t){const st=new Date(t.start),en=new Date(t.end);const hm=d=>d.toLocaleTimeString('nl-BE',{hour:'2-digit',minute:'2-digit'});
+ const dur=Math.round((t.end-t.start)/1000);const durTxt=`${Math.floor(dur/60)} min ${String(dur%60).padStart(2,'0')} s`;
+ const rows=PARTS_T.map((p,i)=>`<tr><td>${p==='P'?'Praktijk':p} · ${esc(CH[p].replace('Praktijk: ',''))}</td><td class="num">${t.parts[i]} / ${PMAX[p]}</td><td style="width:30%"><div class="bar"><i style="width:${Math.round(t.parts[i]/PMAX[p]*100)}%"></i></div></td></tr>`).join('');
+ const review=t.qs.map((q,i)=>`<div class="fb ${q.ok?'ok':'no'}"><b>${i+1}. ${q.ok?'Juist':'Fout'}</b> · ${PR(q)}<br>Jouw antwoord: ${esc(q.ans==null||q.ans===''?'(leeg)':Array.isArray(q.ans)?q.ans.map((x,j)=>(j+1)+'. '+x).join(' '):q.ans)}${q.ok?'':`<br>Juist: ${esc(ansText(q))}. ${esc(q.why)}`}</div>`).join('');
+ return `<section class="panel"><div class="report"><div><p class="eyebrow">Rapport eindtoets · PC werkt traag</p><h2>${esc(t.naam)}</h2></div>
+ <dl class="kv"><dt>Klas</dt><dd>${esc(t.klas)}</dd><dt>Datum</dt><dd>${st.toLocaleDateString('nl-BE')}</dd><dt>Tijd</dt><dd>${hm(st)} – ${hm(en)}</dd><dt>Duur</dt><dd>${durTxt}</dd><dt>Poging</dt><dd>${t.poging||1}</dd><dt>Toets verlaten</dt><dd>${t.leaves||0} keer (ander tabblad of venster)</dd><dt>Score</dt><dd style="font-size:22px">${t.total} / ${NQ} (${Math.round(t.total/NQ*100)} %)</dd></dl>
+ <div class="tbl"><table><tr><th>Onderdeel</th><th>Score</th><th>Grafiek</th></tr>${rows}</table></div>
+ <div><p class="small">Controlecode</p><span class="code">${t.code}</span></div>
+ <p class="msg ok">Neem nu een screenshot van dit rapport (Windows-toets + Shift + S) en bezorg het aan je leerkracht.</p></div>
+ <div class="row"><button class="btn ghost" id="tReview" type="button">Bekijk mijn antwoorden</button><button class="btn ghost" id="tNew" type="button">Nieuwe toets maken</button></div><div id="newConfirm"></div>
+ <div id="reviewBox" hidden style="display:flex;flex-direction:column;gap:8px">${review}</div></section>`;}
+
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.toets&&!S.toets.finished){S.toets.leaves=(S.toets.leaves||0)+1;save();}});
+/* ---------- leerkracht ---------- */
+$('#teachBtn').onclick=()=>openTeacher();
+function openTeacher(){const r=$('#modalRoot');r.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="tkT"><div><h2 id="tkT">Leerkracht</h2><div id="tkBody"><div class="field"><label for="tkCode">Leerkrachtcode</label><input type="password" id="tkCode" inputmode="numeric" autocomplete="off"></div><div class="row"><button class="btn acc" id="tkGo" type="button">Open</button><button class="btn ghost" id="tkClose" type="button">Sluiten</button></div><div id="tkMsg"></div></div></div></div>`;
+ const close=()=>r.innerHTML='';$('#tkClose').onclick=close;r.querySelector('.modal').onclick=ev=>{if(ev.target.classList.contains('modal'))close();};
+ const c=$('#tkCode');c.focus();c.onkeydown=ev=>{if(ev.key==='Enter')$('#tkGo').click();};
+ $('#tkGo').onclick=()=>{if(c.value.trim()!=='2026'){$('#tkMsg').innerHTML='<p class="msg no">Onjuiste code.</p>';return;}
+  $('#tkBody').innerHTML=`<p>Toets op dit toestel: <b id="tkState">${toetsOpen()?'open':'op slot'}</b>. Oefeningen klaar: ${REQ.filter(id=>okCount(id)>=NEED).length}/${REQ.length}.</p>
+  <div class="row"><button class="btn acc" id="tkUnlock" type="button">${S.unlocked?'Vergrendel de toets opnieuw':'Ontgrendel de toets'}</button></div>
+  <h3>Rapportcode controleren</h3><p class="small">Typ naam en klas exact zoals op het rapport, en de controlecode.</p>
+  <div class="field"><label for="vNaam">Naam</label><input type="text" id="vNaam"></div><div class="field"><label for="vKlas">Klas</label><input type="text" id="vKlas"></div><div class="field"><label for="vCode">Controlecode</label><input type="text" id="vCode" autocomplete="off"></div>
+  <div class="row"><button class="btn" id="vGo" type="button">Controleer code</button></div><div id="vOut"></div>
+  <h3>Dit toestel</h3><div class="row"><button class="btn ghost" id="tkReset" type="button">Wis alle voortgang op dit toestel</button></div><div id="tkRes"></div>
+  <div class="row"><button class="btn ghost" id="tkClose2" type="button">Sluiten</button></div>`;
+  $('#tkClose2').onclick=close;
+  $('#tkUnlock').onclick=()=>{S.unlocked=!S.unlocked;save();$('#tkUnlock').textContent=S.unlocked?'Vergrendel de toets opnieuw':'Ontgrendel de toets';$('#tkState').textContent=toetsOpen()?'open':'op slot';render();};
+  $('#vGo').onclick=()=>{const r2=readCode($('#vNaam').value,$('#vKlas').value,$('#vCode').value);
+   $('#vOut').innerHTML=r2.ok?`<div class="fb ok"><b>Echt rapport.</b><br>Score ${r2.total}/${NQ} · datum ${r2.date.split('-').reverse().join('/')} · duur ± ${r2.mins} min · poging ${r2.poging} · toets ${r2.leaves} keer verlaten${r2.leaves>=15?' of meer':''}<br>${PARTS_T.map((p,i)=>(p==='P'?'Praktijk':p)+': '+r2.parts[i]+'/'+PMAX[p]).join(' · ')}</div>`:`<div class="fb no"><b>Niet geldig.</b> ${esc(r2.why)}</div>`;};
+  $('#tkReset').onclick=()=>{$('#tkRes').innerHTML=`<p class="msg warn">Alles wissen (oefeningen, praktijk, toets)? <button class="btn ghost" id="tkResYes" type="button">Ja, wis</button></p>`;$('#tkResYes').onclick=()=>{S={naam:'',klas:'',prog:{},unlocked:false,prak:{},toets:null,lastTab:'theorie'};save();close();render();};};};}
+
+/* ---------- start ---------- */
+const h0=(location.hash||'').slice(1);setTab(['theorie','oefenen','praktijk','toets'].includes(h0)?h0:(S.lastTab||'theorie'));
+window.__tpd={EX,S:()=>S,Q,judge,makeCode,readCode,buildToets,finishToets,pcheck};
+</script>
+
+</body></html>
